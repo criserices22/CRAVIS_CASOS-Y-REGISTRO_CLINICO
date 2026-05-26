@@ -1,0 +1,3119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Clínica APS - Simulación Académica Avanzada</title>
+    <style> .risk-box { padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
+.risk-box { padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
+.risk-0 { background-color: #dcfce7; color: #166534; }
+.risk-1 { background-color: #fef9c3; color: #854d0e; }
+.risk-2 { background-color: #fef3c7; color: #92400e; }
+.risk-3 { background-color: #fee2e2; color: #991b1b; }
+.risk-label { font-size: 10px; margin-top: 5px; color: #555; }
+.program-form-content { display: none; }
+.program-form-content.open { 
+    display: block !important;
+}
+        :root {
+            --green-bar: #a3cc29;
+            --dark-gray: #404040;
+            --light-bg: #f4f4f4;
+            --blue-accent: #00bcd4;
+            --border-color: #cccccc;
+            --header-gray: #e6e6e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: #000000;
+        }
+
+        /* BANNER SUPERIOR DE PACIENTE EDITABLE */
+        .patient-banner {
+            background-color: var(--green-bar);
+            padding: 8px 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #8cb41e;
+        }
+
+        .patient-banner input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed #404040;
+            font-weight: bold;
+            color: #000000;
+            padding: 2px;
+        }
+
+        .mode-indicator {
+            font-size: 9px;
+            color: #404040;
+        }
+
+        /* PESTAÑAS PRINCIPALES (IZQUIERDA) */
+        .tabs-container {
+            background-color: var(--dark-gray);
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #222;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            border-right: 1px solid #555;
+            color: #ffffff;
+            padding: 8px 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .tab-button:hover, .tab-button.active {
+            background-color: #555555;
+        }
+
+        /* DISEÑO DE PANTALLA DIVIDIDA */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 1fr 430px;
+            height: calc(100vh - 70px);
+            background: #ffffff;
+        }
+
+        .left-panel {
+            padding: 15px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .right-panel {
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tab-view {
+            display: none;
+        }
+
+        .tab-view.active {
+            display: block;
+        }
+
+        /* PROGRAMAS ACTIVOS */
+        .program-select-box {
+            background: #f0f4f8;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--dark-gray);
+        }
+
+        .active-programs-container {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .program-card {
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--blue-accent);
+            border-radius: 4px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .program-card-header {
+            background: #fdfefe;
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            user-select: none;
+        }
+
+        .program-card-header:hover {
+            background: #f1f5f9;
+        }
+
+        /* TABLA DEL ALGORITMO ULCERACIÓN (6 PASOS) */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            background: white;
+        }
+
+        .matrix-table th {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            font-size: 10px;
+            padding: 6px 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .matrix-table td {
+            padding: 8px 4px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .step-title {
+            background-color: #e2e8f0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .radio-group-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 3px 0;
+        }
+
+        .radio-group-vertical label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* CUESTIONARIO PHQ-9 MODIFICADO */
+        .phq9-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 8px;
+        }
+
+        .phq9-table th {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+            font-size: 10px;
+            padding: 6px 4px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .phq9-table td {
+            padding: 6px 4px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .phq9-table td:not(:first-child) {
+            text-align: center;
+        }
+
+        .phq9-score-container {
+            margin-top: 12px;
+            padding: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+        }
+
+        /* EXÁMENES DE LABORATORIO */
+        .exam-form-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .exam-card-history {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .exam-card-history-header {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .exam-table-internal {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        .exam-table-internal th {
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .exam-table-internal td {
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .risk-display-block {
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.08);
+            margin-bottom: 5px;
+        }
+        .risk-0 { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .risk-3 { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        /* SECCIÓN EDUCACIÓN */
+        .education-form-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .education-grid-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .education-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #ffffff;
+        }
+
+        .education-history-table th {
+            background-color: var(--dark-gray);
+            color: white;
+            padding: 6px;
+            font-weight: bold;
+            border: 1px solid #333;
+            text-align: left;
+        }
+
+        .education-history-table td {
+            padding: 8px 6px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        /* PARÁMETROS CLÍNICOS */
+        .param-form-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .param-grid-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+
+        .param-input-unit {
+            display: flex;
+            flex-direction: column;
+            width: 75px;
+        }
+
+        .param-input-unit label {
+            font-weight: bold;
+            margin-bottom: 2px;
+            color: #475569;
+            font-size: 9px;
+        }
+
+        /* SUB-PESTAÑAS PANEL DERECHO */
+        .right-panel-tabs {
+            display: flex;
+            background-color: #dcdcdc;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            padding: 6px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            border-right: 1px solid var(--border-color);
+            color: #555;
+        }
+
+        .sub-tab-btn.active {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .sub-tab-content {
+            display: none;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            padding: 10px;
+        }
+
+        .sub-tab-content.active {
+            display: block;
+        }
+
+        /* FICHA CLÍNICA ACTUAL */
+        .ficha-box {
+            border: 1px solid #404040;
+            background: #fff;
+        }
+
+        .ficha-header {
+            background-color: var(--header-gray);
+            padding: 6px 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+.history-list {
+            list-style: none;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+        .ficha-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ficha-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .ficha-select, .ficha-input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+        }
+
+        .ficha-textarea {
+            width: 100%;
+            height: 50px;
+            resize: vertical;
+            border: 1px solid var(--border-color);
+            font-family: Arial, sans-serif;
+            padding: 6px;
+            border-radius: 2px;
+        }
+
+        /* RESPONSIVE TABLE */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        table.main-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        table.main-table th {
+            background-color: var(--dark-gray);
+            color: white;
+            font-weight: bold;
+            padding: 6px;
+            border: 1px solid #333;
+        }
+
+        table.main-table td {
+            padding: 6px 4px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .btn-action {
+            background-color: #404040;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        .btn-action:hover { background-color: #222; }
+        .btn-green { background-color: #7da31d; }
+        .btn-blue { background-color: #00bcd4; color: white; }
+        .btn-red { background-color: #e11d48; color: white; }
+
+        /* CIERRE ESTADÍSTICO EN CASCADA COMPLETO */
+        .action-button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .rem-modal-section {
+            background-color: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .rem-cascade-box {
+            background: #ffffff;
+            border: 1px solid #fed7aa;
+            padding: 8px;
+            margin-top: 6px;
+            border-radius: 3px;
+        }
+
+        .rem-checkbox-card {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .rem-checkbox-card:hover { background-color: #f8fafc; }
+
+        /* HISTORIAL DE PACIENTES GUARDADOS */
+        .saved-patients-section {
+            border: 1px solid var(--border-color);
+            background: #edf2f7;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 12px;
+        }
+
+        .patient-chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .patient-clickable-chip {
+            background-color: #ffffff;
+            border: 1px solid #4a5568;
+            color: #2d3748;
+            padding: 6px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .patient-clickable-chip:hover { background-color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <div class="patient-banner">
+        <div>
+            👤 PACIENTE: <input type="text" id="p-nombre" value="JUAN PÉREZ EXPÓSITO" style="width: 140px;"> | 
+            R.U.N.: <input type="text" id="p-run" value="12.345.678-K" style="width: 85px;"> | 
+            SEXO: <input type="text" id="p-sexo" value="Hombre" style="width: 50px;"> | 
+            EDAD: <input type="text" id="p-edad" value="45" style="width: 25px;"> años 
+        </div>
+        <div class="mode-indicator">
+            MODO SIMULACIÓN ACTIVO ⚙️
+        </div>
+    </div>
+
+   <div class="tabs-container">
+    <button class="tab-button active" onclick="openLeftTab('parametros', event)">🩺 Param. Clínicos</button>
+    <button class="tab-button" onclick="openLeftTab('programas', event)">💉 PROGRAMAS DE SALUD</button>
+    <button class="tab-button" onclick="openLeftTab('educacion', event)">🧑‍🎓 Educación</button>
+    <button class="tab-button" onclick="openLeftTab('examenes', event)">📝🩸 Exámenes</button>
+    <button class="tab-button" onclick="openLeftTab('medicamentos', event)">💊 Medicamentos</button>
+    <button class="tab-button" onclick="openLeftTab('seccion-caso-clinico', event)">📋 CASO CLÍNICO</button>
+</div>
+
+    <div class="app-layout">
+        
+        <div class="left-panel">
+            
+            <div id="parametros" class="tab-view active">
+                <div style="background-color: #f1f5f9; border: 1px solid var(--border-color); padding: 10px; margin-bottom: 12px; border-radius: 4px;">
+                    <strong>➕ Crear Nueva Columna de Parámetro Personalizado:</strong><br>
+                    <div style="display:flex; gap:6px; margin-top:4px;">
+                        <input type="text" id="nuevo-param-nombre" placeholder="Ej: Glicemia, SatO2, Hgt" style="padding: 5px; flex-grow:1;">
+                        <button class="btn-action btn-green" onclick="crearNuevaColumnaParametro()">Agregar Columna</button>
+                    </div>
+                </div>
+
+                <div class="param-form-container">
+                    <p style="font-weight: bold; color: #1e293b;">📝 Formulario de Registro de Constantes Vitales:</p>
+                    <div class="param-grid-inputs" id="contenedor-inputs-dinamicos">
+                        <div class="param-input-unit"><label>Fecha:</label><input type="text" id="p-in-fecha" class="ficha-input" value="22/05/2026"></div>
+                        <div class="param-input-unit"><label>Peso (KG):</label><input type="text" id="p-in-peso" class="ficha-input" placeholder="78.5"></div>
+                        <div class="param-input-unit"><label>Talla (M):</label><input type="text" id="p-in-talla" class="ficha-input" placeholder="1.72"></div>
+                        <div class="param-input-unit"><label>IMC:</label><input type="text" id="p-in-imc" class="ficha-input" placeholder="26.5"></div>
+                        <div class="param-input-unit"><label>PAS:</label><input type="text" id="p-in-pas" class="ficha-input" placeholder="130"></div>
+                        <div class="param-input-unit"><label>PAD:</label><input type="text" id="p-in-pad" class="ficha-input" placeholder="85"></div>
+                        <div class="param-input-unit"><label>Pulso:</label><input type="text" id="p-in-pulso" class="ficha-input" placeholder="72"></div>
+                        <div class="param-input-unit"><label>T. Axilar:</label><input type="text" id="p-in-taxilar" class="ficha-input" placeholder="36.5"></div>
+                        <div class="param-input-unit"><label>C. Cintura:</label><input type="text" id="p-in-ccintura" class="ficha-input" placeholder="96"></div>
+                    </div>
+                    <button class="btn-action btn-green" style="width:100%; padding:8px; margin-top:5px;" onclick="guardarFilaParametrosHistorial()">💾 Guardar y Registrar Parámetros Clínicos</button>
+                </div>
+
+                <h3>📊 Historial Clínico de Constantes Vitales Grabadas</h3>
+                <div class="table-responsive">
+                    <table id="tabla-clinica" class="main-table">
+                        <thead>
+                            <tr id="tabla-header-row">
+                                <th>FECHA</th><th>PESO (KG)</th><th>TALLA (M)</th><th>IMC</th><th>PAS</th><th>PAD</th><th>PULSO</th><th>T. AXILAR</th><th>C. CINTURA</th><th style="min-width:40px; background:#404040;">ACC.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-clinica-tbody">
+                            <tr id="fila-vacia-parametros">
+                                <td colspan="10" style="text-align: center; color: #888; font-style: italic; padding: 15px; background:#ffffff;">No se han guardado parámetros clínicos en esta consulta.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="programas" class="tab-view">
+                <h3>Programas de Atención Primaria de Salud (Chile)</h3>
+                <div class="program-select-box">
+                    <strong>Asignar Programa Principal:</strong>
+                    <select id="selector-programa-principal" class="ficha-select" style="margin-top: 5px;" onchange="agregarProgramaAlFlujo()">
+    <option value="">-- Seleccione para agregar --</option>
+    <option value="pscv">PSCV PROGRAMA DE SALUD CARDIOVASCULAR</option>
+    <option value="mental">Programa de Salud Mental (Cuestionario PHQ-9)</option>
+    <option value="adulto_mayor">Programa del Adulto Mayor</option>
+</select>
+                </div>
+                <h4>📌 Programas Activos en esta Consulta</h4>
+                <div id="contenedor-programas-activos" class="active-programs-container"></div>
+            </div>
+
+            <div id="educacion" class="tab-view">
+                <span class="ficha-label" style="background:#404040; color:white; padding:6px; display:block; margin-bottom:12px; text-align:center;">SECCIÓN DE EDUCACIÓN Y CONSEJERÍA AL PACIENTE</span>
+                <div class="education-form-container">
+                    <div class="education-grid-fields">
+                        <div><label>Fecha:</label><input type="text" id="edu-fecha" class="ficha-input" value="22/05/2026"></div>
+                        <div><label>Profesional:</label><input type="text" id="edu-profesional" class="ficha-input" value="Enf. Alumno"></div>
+                        <div><label>Carrera:</label><input type="text" id="edu-profesion" class="ficha-input" value="Enfermería"></div>
+                    </div>
+                    <div style="margin-bottom: 10px;"><label>Educación y Consejería:</label><textarea id="edu-contenido" class="ficha-textarea" placeholder="Ej: Educación técnica en autocuidado..."></textarea></div>
+                    <div style="margin-bottom: 12px;"><label>Observaciones:</label><input type="text" id="edu-observaciones" class="ficha-input" placeholder="Paciente demuestra buena comprensión"></div>
+                    <button class="btn-action btn-green" style="width: 100%;" onclick="guardarNuevaEducacion()">💾 Guardar y Registrar Educación</button>
+                </div>
+                <h4>📌 Historial Clínico de Educaciones</h4>
+                <table class="education-history-table" id="tabla-historial-educacion">
+                    <thead><tr><th>FECHA</th><th>PROFESIONAL</th><th>CONTENIDO</th><th>OBSERVACIONES</th><th>ACC.</th></tr></thead>
+                    <tbody><tr id="fila-vacia-educacion"><td colspan="5" style="text-align:center; padding:15px;">No se han registrado actividades de educación.</td></tr></tbody>
+                </table>
+            </div>
+<div id="seccion-caso-clinico" class="tab-content" style="display: none;">
+    <span class="ficha-label" style="background:#404040; color:white; padding:6px; display:block; margin-bottom:12px; text-align:center; text-transform: uppercase; font-weight: bold; font-size: 12px; letter-spacing: 0.5px;">
+        Control y Visualización de Caso Clínico Asignado
+    </span>
+    
+    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <label style="display: block; font-weight: bold; color: #1e3a8a; margin-bottom: 8px; font-size: 13px;">
+            📝 Descripción del Caso Clínico (Editable Docente):
+        </label>
+        
+        <textarea id="textarea-caso-clinico" class="ficha-textarea" 
+                  style="width: 100%; min-height: 300px; resize: vertical; line-height: 1.6; font-size: 13px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 4px; color: #334155; background-color: #f8fafc;" 
+                  placeholder="Escriba, edite o pegue el caso clínico detallado aquí para que los estudiantes lo resuelvan..."></textarea>
+                  
+        <p style="margin: 8px 0 0 0; font-size: 11px; color: #64748b; font-style: italic;">
+            * El texto ingresado aquí se guardará automáticamente de manera interna y se incluirá si exportas la ficha en formato JSON.
+        </p>
+    </div>
+</div>
+<div id="medicamentos" class="tab-view">
+                <span class="ficha-label" style="background:#404040; color:white; padding:6px; display:block; margin-bottom:12px; text-align:center;">💊 TERAPIA FARMACOLÓGICA Y MEDICAMENTOS ACTIVOS</span>
+                
+                <div class="exam-form-container">
+                    <div class="education-grid-fields" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div>
+                            <label>Nombre del Fármaco:</label>
+                            <input type="text" id="med-nombre" class="ficha-input" placeholder="Ej: Losartán potásico">
+                        </div>
+                        <div>
+                            <label>Dosis / Presentación:</label>
+                            <input type="text" id="med-dosis" class="ficha-input" placeholder="Ej: 50 mg">
+                        </div>
+                        <div>
+                            <label>Frecuencia / Horario:</label>
+                            <input type="text" id="med-frecuencia" class="ficha-input" placeholder="Ej: Cada 12 horas (8:00 - 20:00)">
+                        </div>
+                    </div>
+                    
+                    <div class="education-grid-fields" style="grid-template-columns: 1fr 2fr; margin-top:8px;">
+                        <div>
+                            <label>Vía de Administración:</label>
+                            <select id="med-via" class="ficha-select">
+                                <option value="Oral">Oral</option>
+                                <option value="Sublingual">Sublingual</option>
+                                <option value="Subcutánea">Subcutánea (Insulina)</option>
+                                <option value="Inhalatoria">Inhalatoria</option>
+                                <option value="Tópica">Tópica</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Observaciones / Indicación Clínica:</label>
+                            <input type="text" id="med-observacion" class="ficha-input" placeholder="Ej: Tomar con agua en ayunas / Fármaco Crónico">
+                        </div>
+                    </div>
+                    
+                    <button class="btn-action btn-green" style="width:100%; padding:8px; margin-top:10px;" onclick="guardarMedicamentoHistorial()">💾 Registrar y Activar Medicamento</button>
+                </div>
+
+                <h4>📌 Listado de Medicamentos en Uso por el Paciente</h4>
+                <div class="table-responsive">
+                    <table class="main-table" id="tabla-medicamentos">
+                        <thead>
+                            <tr>
+                                <th>MEDICAMENTO</th>
+                                <th>DOSIS</th>
+                                <th>FRECUENCIA</th>
+                                <th>VÍA</th>
+                                <th>OBSERVACIONES</th>
+                                <th style="width:40px; background:#404040;">ACC.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-medicamentos-tbody">
+                            <tr id="fila-vacia-medicamentos">
+                                <td colspan="6" style="text-align: center; color: #888; font-style: italic; padding: 15px; background:#ffffff;">El paciente no registra medicamentos declarados para esta consulta.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="examenes" class="tab-view">
+                <span class="ficha-label" style="background:#404040; color:white; padding:6px; display:block; margin-bottom:12px; text-align:center;">🔬 EXÁMENES DE LABORATORIO</span>
+                <div class="exam-form-container">
+                    <div class="education-grid-fields">
+                        <div><label>Fecha de Toma:</label><input type="text" id="ex-fecha" class="ficha-input" value="22/05/2026"></div>
+                        <div><label>Solicitante:</label><input type="text" id="ex-profesional" class="ficha-input" value="Dr. M. González"></div>
+                        <div><label>Examen Tipo:</label>
+                            <select id="ex-tipo" class="ficha-select" onchange="actualizarCamposExamenFijo()">
+                                <option value="hematocrito">Hematocrito</option>
+                                <option value="glicemia">Glicemia</option>
+                                <option value="perfil_lipidico">Perfil Lipídico Completo</option>
+                                <option value="creatinina">Creatinina Plasmática</option>
+                                <option value="rac">RAC (Relación Albúmina/Creatinina)</option>
+                                <option value="vfg">VFG (Velocidad de filtración glomerular)</option>
+                                <option value="hba1c">HbA1c (Hemoglobina Glicosilada)</option>
+                                <option value="tgc">Trigliceridos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="contenedor-valores-examen-especifico" style="background:white; border:1px solid var(--border-color); padding:8px; margin:8px 0;"></div>
+                    <div class="education-grid-fields" style="grid-template-columns: 130px 1fr; margin-top:8px;">
+                        <div><label>Estado Global:</label><select id="ex-estado-global" class="ficha-select"><option value="normal">🟢 Normal</option><option value="alterado">🔴 Alterado</option></select></div>
+                        <div><label>Observación:</label><input type="text" id="ex-observacion" class="ficha-input"></div>
+                    </div>
+                    <button class="btn-action btn-green" style="width:100%; padding:8px; margin-top:10px;" onclick="guardarExamenLaboratorioHistorial()">🔬 Registrar Examen de Laboratorio</button>
+                </div>
+                <div id="contenedor-historial-examenes-laboratorio">
+                    <div id="aviso-vacio-examenes" style="text-align: center; color: #888; font-style: italic; padding: 20px; background:#fff; border:1px solid var(--border-color);">No se han cargado exámenes de laboratorio.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right-panel">
+            <div>
+                <div class="right-panel-tabs">
+                    <button class="sub-tab-btn active" onclick="openRightSubTab('sub-meap')">MEAP</button>
+                    <button class="sub-tab-btn" onclick="openRightSubTab('sub-crono')">CRONOLÓGICO</button>
+                    <button class="sub-tab-btn" onclick="openRightSubTab('sub-episodios')">EPISODIOS</button>
+                </div>
+                
+                <div id="sub-meap" class="sub-tab-content active"></div>
+                
+                <div id="sub-crono" class="sub-tab-content">
+                    <span class="ficha-label" style="color: #7da31d;">Historial de Atenciones Anteriores</span>
+                    <div class="teacher-form">
+                        <div style="display: grid; grid-template-columns: 75px 1fr; gap: 4px; margin-bottom: 4px;">
+                            <input type="text" id="crono-fecha" placeholder="DD/MM/AAAA" class="ficha-input">
+                            <input type="text" id="crono-profesional" placeholder="Profesional" class="ficha-input">
+                        </div>
+                        <input type="text" id="crono-accion" placeholder="Acción Realizada" class="ficha-input" style="margin-bottom: 4px;">
+                        <label style="font-weight:bold; display:block; margin: 4px 0 2px 0; color: #475569; font-size:9px;">BREVE ANAMNESIS / EVOLUCIÓN HISTÓRICA:</label>
+                        <textarea id="crono-anamnesis" class="ficha-textarea" style="height:40px; margin-bottom:4px;" placeholder="Detalles clínicos breves..."></textarea>
+                        <button class="btn-action btn-green" style="width: 100%;" onclick="docenteAgregarCronologico()">Agregar al Historial</button>
+                    </div>
+                    <ul class="history-list" id="lista-cronologico-docente"></ul>
+                </div>
+
+                <div id="sub-episodios" class="sub-tab-content">
+                    <span class="ficha-label" style="color: #7da31d;">Historial de Enfermedades / Diagnósticos Activos</span>
+                    <div class="teacher-form" style="display: flex; gap: 4px;">
+                        <input type="text" id="episodio-nombre" placeholder="Ej: Diabetes Mellitus Tipo 2" class="ficha-input">
+                        <button class="btn-action btn-green" style="padding: 2px 10px;" onclick="docenteAgregarEpisodio()">+</button>
+                    </div>
+                    <ul class="history-list" id="lista-episodios-docente"></ul>
+                </div>
+            </div>
+
+            <div class="ficha-box" id="seccion-consulta-actual-estudiante">
+                <div class="ficha-header"><span>📝 CONSULTA Y REGISTRO CLÍNICO ACTUAL</span><span style="color:#00bcd4; font-size:9px;">ESTUDIANTE</span></div>
+                <div class="ficha-body">
+                    <label class="ficha-label">Categoría Profesional:</label>
+                    <select class="ficha-select" id="reg-categoria"><option>Enfermero/a Universitario</option><option>Médico General APS</option><option>Nutricionista</option></select>
+                    <label class="ficha-label">Motivo de Consulta:</label><textarea class="ficha-textarea" id="reg-motivo" placeholder="Ej: Control Cardiovascular..."></textarea>
+                    <label class="ficha-label">Anamnesis:</label><textarea class="ficha-textarea" id="reg-anamnesis"></textarea>
+                    
+                    <label class="ficha-label">Exploración / Examen Físico:</label>
+                    <textarea class="ficha-textarea" id="reg-fisico" style="height:70px;" placeholder="Los signos vitales se inyectarán de forma automática aquí al guardarlos arriba..."></textarea>
+                    
+                    <label class="ficha-label">Diagnósticos:</label><textarea class="ficha-textarea" id="reg-diagnosticos"></textarea>
+                    <label class="ficha-label">Actuación / Plan e Indicaciones:</label><textarea class="ficha-textarea" id="reg-actuacion"></textarea>
+
+                    <div class="action-button-group">
+                        <button class="btn-action btn-blue" onclick="ejecutarGuardarParcial()">💾 Guardar Temporal</button>
+                        <button class="btn-action btn-red" onclick="ejecutarGuardarYCerrarAtencion()">🔒 Guardar y Cerrar</button>
+                    </div>
+<div style="margin-top: 15px; padding: 10px; border: 1px dashed #00bcd4; background: #f0fdfa; border-radius: 4px;">
+                            <p style="font-size: 10px; margin-bottom: 5px; font-weight: bold; color: #00bcd4;">GESTIÓN DE ARCHIVO:</p>
+                            <button class="btn-action" style="background-color: #059669; margin-bottom: 5px; width: 100%;" onclick="descargarProgreso()">📥 Guardar Ficha en Archivo</button>
+                            <input type="file" id="importFile" onchange="cargarProgreso(event)" style="display:none">
+                            <button class="btn-action" style="background-color: #0284c7; width: 100%;" onclick="document.getElementById('importFile').click()">📤 Cargar Ficha Guardada</button>
+                        </div>
+                    <div class="rem-modal-section" id="seccion-rem-flujo">
+                        <strong style="color:#b45309; font-size:11px;">⚠️ REGISTRO ESTADÍSTICO MENSUAL (REM)
+</strong>
+                        
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-a01" onchange="toggleCascadeLevelA01Parent(this)">
+                                <span>REM A01: Rendimiento de Controles de Salud</span>
+                            </label>
+                        </div>
+
+                        <div id="sub-rama-a01-seccion-b" class="rem-cascade-box" style="display:none; margin-left:10px; border-color:#cbd5e1;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-seccion-b" onchange="toggleCascadeLevel('nivel-b-control-salud', this)">
+                                <span>Sección B: Controles de Salud Según Ciclo Vital</span>
+                            </label>
+                            
+                            <div id="nivel-b-control-salud" class="rem-cascade-box" style="display:none; margin-left:12px; border-style:dashed;">
+                                <label><input type="checkbox" id="chk-b-control-salud-unico"> 📋 Registrar Producción: Control de Salud</label>
+                            </div>
+                        </div>
+
+                        <div id="sub-rama-a01-seccion-c" class="rem-cascade-box" style="display:none; margin-left:10px; border-color:#93c5fd;">
+                            <label class="rem-checkbox-card" style="background:#f0fdfa;">
+                                <input type="checkbox" id="rem-seccion-c" onchange="toggleCascadeLevel('nivel-cuatro-opciones-a01', this)">
+                                <span>Sección C: Controles Según Problemas de Salud</span>
+                            </label>
+                            
+                            <div id="nivel-cuatro-opciones-a01" class="rem-cascade-box" style="display:none; margin-left:12px;">
+                                <span style="font-weight:bold; color:#1e40af; display:block; margin-bottom:4px;">Seleccione Tipo de Control Validante:</span>
+                                <label><input type="radio" name="sub_a01_opcion" value="cardio" onchange="evaluarDespliegueAsociacionPrograma(this)"> Control de Salud Cardiovascular (PSCV)</label><br>
+                                <label><input type="radio" name="sub_a01_opcion" value="its" onchange="evaluarDespliegueAsociacionPrograma(this)"> Control de Infección de Transmisión Sexual</label><br>
+                                <label><input type="radio" name="sub_a01_opcion" value="tbc" onchange="evaluarDespliegueAsociacionPrograma(this)"> Control de TBC</label><br>
+                                <label><input type="radio" name="sub_a01_opcion" value="otros" onchange="evaluarDespliegueAsociacionPrograma(this)"> Controles Otros Problemas de Salud</label>
+                            </div>
+                        </div>
+
+                        <div id="nivel-asociacion-programa" class="rem-cascade-box" style="display:none; margin-left:30px; background:#f0fdf4; border-color:#16a34a;">
+                            <label style="font-weight:bold; color:#14532d; display:block; margin-bottom:4px;">🔗 ASOCIAR A PROGRAMA:</label>
+                            <select id="rem-programa-asociado-select" class="ficha-select">
+                                <option value="">-- Seleccionar Programa --</option>
+                                <option value="cardio">Programa de Salud Cardiovascular</option>
+                                <option value="mental">Programa de Salud Mental</option>
+                                <option value="adulto_mayor">Programa del Adulto Mayor</option>
+                                <option value="infancia">Programa de Salud Integral de la Infancia</option>
+                            </select>                         </div>
+
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-a02" onchange="toggleCascadeLevel('nivel-a02-emp', this)">
+                                <span>REM A02: Examen de Medicina Preventiva (EMP) en Mayores de 15 años</span>
+                            </label>
+                        </div>
+
+                        <div id="nivel-a02-emp" class="rem-cascade-box" style="display:none; margin-left:12px; background:#fafafa; border-color:#cbd5e1;">
+                            <div style="margin-bottom:6px; border-bottom:1px dashed #ddd; padding-bottom:4px;">
+                                <strong style="color:#475569; display:block; margin-bottom:2px;">Sección B: EMP Según Resultado Nutricional</strong>
+                                <label><input type="checkbox" name="emp_b" value="Bajo Peso"> Estado Nutricional Bajo Peso (EMP)</label><br>
+                                <label><input type="checkbox" name="emp_b" value="Normal"> Estado Nutricional Normal (EMP)</label><br>
+                                <label><input type="checkbox" name="emp_b" value="Sobrepeso"> Estado Nutricional Sobrepeso (EMP)</label><br>
+                                <label><input type="checkbox" name="emp_b" value="Obeso"> Estado Nutricional Obesos (EMP)</label>
+                            </div>
+                            <div style="margin-bottom:6px; border-bottom:1px dashed #ddd; padding-bottom:4px;">
+                                <strong style="color:#475569; display:block; margin-bottom:2px;">Sección C: Resultados de EMP Según Estado de Salud</strong>
+                                <label><input type="checkbox" name="emp_c" value="PA Elevada"> Presión Arterial Elevada (= o &gt; 140/90 mmHg)</label><br>
+                                <label><input type="checkbox" name="emp_c" value="Tabaquismo"> Tabaquismo</label>
+                            </div>
+                            <div>
+                                <strong style="color:#475569; display:block; margin-bottom:2px;">Sección D: Resultados de EMP Según Estado de Salud</strong>
+                                <label><input type="checkbox" name="emp_d" value="Colesterol"> Colesterol Elevado (= o &gt; 200 mg/dL)</label><br>
+                                <label><input type="checkbox" name="emp_d" value="Glicemia"> Glicemia Alterada (= o &gt; a 100 mg/dL)</label>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card">
+                                <input type="checkbox" id="rem-a04" onchange="toggleCascadeLevel('nivel-a04-consultas', this)">
+                                <span>REM A04: Actividades de Enfermería y Procedimientos</span>
+                            </label>
+                        </div>
+                        <div id="nivel-a04-consultas" class="rem-cascade-box" style="display:none; margin-left:12px;">
+                            <label><input type="checkbox" id="chk-a04-consulta" value="Consulta Enfermeria"> 📋 Registrar Producción: Consultas de Enfermería</label>
+                        </div>
+
+                        <div style="margin-top: 6px;">
+                            <label class="rem-checkbox-card"><input type="checkbox" id="rem-bm02"> <span>REM BM02: Exámenes Diagnósticos de Laboratorio</span></label>
+                        </div>
+
+                        <button class="btn-action btn-green" style="width:100%; padding:8px; font-size:11px; margin-top:10px;" onclick="ejecutarCierreYGuardarDefinitivo()">✔️ CERRAR ATENCIÓN Y CREAR PACIENTE NUEVO</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="saved-patients-section">
+                <strong style="color:#2d3748;">👥 Pacientes Guardados en esta Consulta (Presionables):</strong>
+                <div class="patient-chips-container" id="contenedor-chips-pacientes"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var listadoIdsColumnasExtras = [];
+        var examIdCounter = 0;
+        var listadoPacientesGlobales = [];
+
+        window.onload = function() {
+            actualizarCamposExamenFijo();
+        };
+
+        function openLeftTab(tabName, e) {
+    // Si no se pasa el evento directamente, intentamos capturar el global de navegadores antiguos
+    var eventoActual = e || window.event || (typeof event !== 'undefined' ? event : null);
+
+    // Corrección automática si la pestaña se llama con espacios o tildes
+    if (tabName === 'caso clínico' || tabName === 'caso-clinico') {
+        tabName = 'seccion-caso-clinico';
+    }
+
+    // 1. Ocultar todos los contenedores de vistas izquierdas
+    document.querySelectorAll(".tab-view").forEach(x => {
+        x.style.display = "none";
+    });
+
+    // 2. Quitar el estado activo de todos los botones de las pestañas
+    document.querySelectorAll(".tab-button").forEach(x => {
+        x.classList.remove("active");
+    });
+
+    // 3. Mostrar la sección seleccionada de forma segura
+    var contenedorDestino = document.getElementById(tabName);
+    if (contenedorDestino) {
+        contenedorDestino.style.display = "block";
+    } else {
+        console.warn("Aviso: No se encontró la sección con ID '" + tabName + "'");
+    } 
+
+    // 4. Activar visualmente el botón seleccionado de forma segura usando el evento
+    if (eventoActual && eventoActual.currentTarget) {
+        eventoActual.currentTarget.classList.add("active");
+    } else if (eventoActual && eventoActual.target) {
+        // Alternativa de seguridad si falla currentTarget
+        var boton = eventoActual.target.closest('.tab-button');
+        if (boton) boton.classList.add("active");
+    }
+}
+
+function openRightSubTab(subTabId, e) {
+    var eventoActual = e || window.event || (typeof event !== 'undefined' ? event : null);
+
+    document.querySelectorAll(".sub-tab-content").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(".sub-tab-btn").forEach(x => x.classList.remove("active"));
+    
+    var subTabContenedor = document.getElementById(subTabId);
+    if (subTabContenedor) {
+        subTabContenedor.classList.add("active");
+    }
+    
+    if (eventoActual && eventoActual.currentTarget) {
+        eventoActual.currentTarget.classList.add("active");
+    }
+
+    var fichaEstudiante = document.getElementById("seccion-consulta-actual-estudiante");
+    if (fichaEstudiante) {
+        fichaEstudiante.style.display = (subTabId === "sub-meap") ? "block" : "none";
+    }
+}
+        function toggleCascadeLevelA01Parent(chk) {
+            var boxB = document.getElementById("sub-rama-a01-seccion-b");
+            var boxC = document.getElementById("sub-rama-a01-seccion-c");
+            if (chk.checked) {
+                boxB.style.display = "block";
+                boxC.style.display = "block";
+            } else {
+                boxB.style.display = "none";
+                boxC.style.display = "none";
+                document.getElementById("rem-seccion-b").checked = false;
+                document.getElementById("rem-seccion-c").checked = false;
+                document.getElementById("nivel-b-control-salud").style.display = "none";
+                document.getElementById("nivel-cuatro-opciones-a01").style.display = "none";
+                document.getElementById("nivel-asociacion-programa").style.display = "none";
+                document.getElementById("rem-programa-asociado-select").value = "";
+                document.getElementById("chk-b-control-salud-unico").checked = false;
+                var radios = document.getElementsByName("sub_a01_opcion");
+                for(var i=0; i<radios.length; i++) radios[i].checked = false;
+            }
+        }
+
+        function toggleCascadeLevel(targetId, chk) {
+            var box = document.getElementById(targetId);
+            if (chk.checked) {
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+                var inputsInternos = box.getElementsByTagName('input');
+                for (var i = 0; i < inputsInternos.length; i++) {
+                    inputsInternos[i].checked = false;
+                }
+                if(targetId === 'nivel-cuatro-opciones-a01') {
+                    document.getElementById("nivel-asociacion-programa").style.display = "none";
+                    document.getElementById("rem-programa-asociado-select").value = "";
+                    var radios = document.getElementsByName("sub_a01_opcion");
+                    for(var j=0; j<radios.length; j++) radios[j].checked = false;
+                }
+            }
+        }
+
+        function evaluarDespliegueAsociacionPrograma(radio) {
+            var boxAsociacion = document.getElementById("nivel-asociacion-programa");
+            if (radio.value === "cardio" && radio.checked) {
+                boxAsociacion.style.display = "block";
+            } else {
+                boxAsociacion.style.display = "none";
+                document.getElementById("rem-programa-asociado-select").value = "";
+            }
+        }
+
+        function guardarFilaParametrosHistorial() {
+            var fecha = document.getElementById("p-in-fecha").value.trim();
+            if(!fecha) return alert("Debe ingresar la fecha.");
+            var tbody = document.getElementById("tabla-clinica-tbody");
+            document.getElementById("fila-vacia-parametros")?.remove();
+            var peso = document.getElementById("p-in-peso").value.trim() || '--';
+            var talla = document.getElementById("p-in-talla").value.trim() || '--';
+            var imc = document.getElementById("p-in-imc").value.trim() || '--';
+            var pas = document.getElementById("p-in-pas").value.trim() || '--';
+            var pad = document.getElementById("p-in-pad").value.trim() || '--';
+            var pulso = document.getElementById("p-in-pulso").value.trim() || '--';
+            var taxilar = document.getElementById("p-in-taxilar").value.trim() || '--';
+            var ccintura = document.getElementById("p-in-ccintura").value.trim() || '--';
+            var tr = document.createElement("tr");
+            tr.innerHTML = `<td><strong>${fecha}</strong></td><td>${peso}</td><td>${talla}</td><td>${imc}</td><td>${pas}</td><td>${pad}</td><td>${pulso}</td><td>${taxilar}</td><td>${ccintura}</td>`;
+            var textoInyeccion = `[Control ${fecha}] Peso: ${peso} kg; Talla: ${talla} m; IMC: ${imc}; PA: ${pas}/${pad} mmHg; Pulso: ${pulso} lpm; T° Axilar: ${taxilar} °C; C. Cintura: ${ccintura} cm.`;
+            listadoIdsColumnasExtras.forEach(id => { 
+                var valorExtra = document.getElementById("p-in-"+id).value.trim() || '--';
+                tr.innerHTML += `<td>${valorExtra}</td>`;
+                var labelTexto = document.getElementById("form-unit-"+id)?.getElementsByTagName('label')[0]?.innerText || "Extra";
+                textoInyeccion += ` ${labelTexto} ${valorExtra};`;
+            });
+            tr.innerHTML += `<td><button class="btn-action btn-red" style="padding:2px 6px; font-size:9px;" onclick="this.parentElement.parentElement.remove()">❌</button></td>`;
+            tbody.appendChild(tr);
+            var campoFisico = document.getElementById("reg-fisico");
+            campoFisico.value = campoFisico.value.trim() === "" ? textoInyeccion : campoFisico.value + "\n" + textoInyeccion;
+            alert("✓ Constantes grabadas.");
+        }
+
+        function ejecutarGuardarYCerrarAtencion() {
+            if(!document.getElementById("reg-motivo").value || !document.getElementById("reg-actuacion").value) {
+                return alert("⚠️ Error: Debe registrar Motivo y Actuación.");
+            }
+            document.getElementById("seccion-rem-flujo").style.display = "block";
+            document.getElementById("seccion-rem-flujo").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function ejecutarCierreYGuardarDefinitivo() {
+            var remsSeleccionados = [];
+            if(document.getElementById("rem-a01").checked) remsSeleccionados.push("A01");
+            if(document.getElementById("rem-a02").checked) remsSeleccionados.push("A02");
+            if(document.getElementById("rem-a04").checked) remsSeleccionados.push("A04");
+            if(document.getElementById("rem-bm02").checked) remsSeleccionados.push("BM02");
+
+            if(remsSeleccionados.length === 0) return alert("❌ Debe validar con al menos un código REM.");
+
+            var fichaPaciente = {
+                nombre: document.getElementById("p-nombre").value,
+                run: document.getElementById("p-run").value,
+                sexo: document.getElementById("p-sexo").value,
+                edad: document.getElementById("p-edad").value,
+                motivo: document.getElementById("reg-motivo").value,
+                anamnesis: document.getElementById("reg-anamnesis").value,
+                fisico: document.getElementById("reg-fisico").value,
+                diagnosticos: document.getElementById("reg-diagnosticos").value,
+                actuacion: document.getElementById("reg-actuacion").value,
+                remAsociadoTexto: remsSeleccionados.join('+')
+            };
+
+            listadoPacientesGlobales.push(fichaPaciente);
+            renderizarChipsPacientesInfeior();
+            limpiarFormularioAtencionCompleto();
+            alert("🔒 Atención cerrada y datos guardados.");
+        }
+
+    function renderizarChipsPacientesInfeior() {
+    var contenedor = document.getElementById("contenedor-chips-pacientes");
+    contenedor.innerHTML = "";
+    listadoPacientesGlobales.forEach(function(pac, i) {
+        var chip = document.createElement("div");
+        chip.className = "patient-clickable-chip";
+        
+        // El chip principal hace clic para recuperar
+        chip.innerHTML = `
+            <span onclick="recuperarPacienteHistoricoAFormulario(${i})" style="flex-grow:1;">
+                👤 ${pac.nombre} - REM: ${pac.remAsociadoTexto}
+            </span>
+            <span onclick="event.stopPropagation(); eliminarPaciente(${i});" 
+                  style="margin-left:8px; color:red; font-weight:bold; cursor:pointer;" 
+                  title="Eliminar paciente">X</span>
+        `;
+        contenedor.appendChild(chip);
+    });
+}
+
+function eliminarPaciente(index) {
+    if (confirm("¿Estás seguro de que deseas eliminar a este paciente de los guardados?")) {
+        // 1. Eliminamos el paciente de la lista global
+        listadoPacientesGlobales.splice(index, 1);
+        
+        // 2. Volvemos a dibujar los chips para que desaparezca el que borramos
+        renderizarChipsPacientesInfeior();
+        
+        alert("Paciente eliminado de la lista.");
+    }
+}
+        function recuperarPacienteHistoricoAFormulario(index) {
+            var pac = listadoPacientesGlobales[index];
+            document.getElementById("p-nombre").value = pac.nombre;
+            document.getElementById("p-run").value = pac.run;
+            document.getElementById("p-sexo").value = pac.sexo;
+            document.getElementById("p-edad").value = pac.edad;
+            document.getElementById("reg-motivo").value = pac.motivo;
+            document.getElementById("reg-anamnesis").value = pac.anamnesis;
+            document.getElementById("reg-fisico").value = pac.fisico;
+            document.getElementById("reg-diagnosticos").value = pac.diagnosticos;
+            document.getElementById("reg-actuacion").value = pac.actuacion;
+            alert("📂 Mostrando registros de: " + pac.nombre);
+        }
+
+       function limpiarFormularioAtencionCompleto() {
+    // 1. Limpiamos solo los campos de texto e inputs de la consulta
+    document.getElementById("p-nombre").value = "NUEVO PACIENTE";
+    document.getElementById("p-run").value = "";
+    document.getElementById("p-sexo").value = "";
+    document.getElementById("p-edad").value = "";
+    document.getElementById("reg-motivo").value = "";
+    document.getElementById("reg-anamnesis").value = "";
+    document.getElementById("reg-fisico").value = "";
+    document.getElementById("reg-diagnosticos").value = "";
+    document.getElementById("reg-actuacion").value = "";
+    
+    // 2. Limpiamos los paneles de REM
+    document.getElementById("seccion-rem-flujo").style.display = "none";
+    document.querySelectorAll('#seccion-rem-flujo input').forEach(el => el.checked = false);
+    
+    // 3. Limpiamos la tabla de constantes vitales
+    document.getElementById("tabla-clinica-tbody").innerHTML = `
+        <tr id="fila-vacia-parametros">
+            <td colspan="10" style="text-align: center; color: #888; font-style: italic; padding: 15px; background:#ffffff;">
+                No se han guardado parámetros clínicos.
+            </td>
+        </tr>`;
+
+    // --- ¡IMPORTANTE! NO TOCAMOS "contenedor-programas-activos" aquí ---
+    // Al no borrar el contenido de ese div, los programas seguirán ahí.
+}
+
+        function ejecutarGuardarParcial() { alert("✓ Datos guardados temporalmente."); }
+
+        function actualizarCamposExamenFijo() {
+            var t = document.getElementById("ex-tipo").value;
+            var c = document.getElementById("contenedor-valores-examen-especifico");
+            if(t==="hematocrito") c.innerHTML = `<div><label>Htco (%):</label><input type="text" id="val-htco" class="ficha-input" style="width:80px;"></div>`;
+            else if(t==="glicemia") c.innerHTML = `<div><label>Glicemia (mg/dL):</label><input type="text" id="val-glic" class="ficha-input" style="width:80px;"></div>`;
+            else if(t==="perfil_lipidico") c.innerHTML = `<div style="display:flex; gap:5px;"><div><label>Col Tot:</label><input type="text" id="val-coltot" class="ficha-input" style="width:60px;"></div><div><label>HDL:</label><input type="text" id="val-hdl" class="ficha-input" style="width:60px;"></div><div><label>LDL:</label><input type="text" id="val-ldl" class="ficha-input" style="width:60px;"></div></div>`;
+            else if(t==="creatinina") c.innerHTML = `<div style="display:flex; gap:5px;"><div><label>Creatinina:</label><input type="text" id="val-creat" class="ficha-input" style="width:60px;"></div><div><label>VFG:</label><input type="text" id="val-vfg" class="ficha-input" style="width:60px;"></div></div>`;
+            else if(t==="rac") c.innerHTML = `<div><label>RAC (mg/g):</label><input type="text" id="val-rac" class="ficha-input" style="width:80px;"></div>`;
+else if(t==="vfg") c.innerHTML = `<div><label>VFG (mL/min/1,73 m²):</label><input type="text" id="val-vfg" class="ficha-input" style="width:80px;"></div>`;
+            else if(t==="hba1c") c.innerHTML = `<div><label>HbA1c (%):</label><input type="text" id="val-hba1c" class="ficha-input" style="width:80px;"></div>`;
+else if(t==="tgc") c.innerHTML = `<div><label>Trigliceridos (mg/dL):</label><input type="text" id="val-tgc" class="ficha-input" style="width:80px;"></div>`;
+        }
+
+   function guardarExamenLaboratorioHistorial() {
+    var f = document.getElementById("ex-fecha").value;
+    var tipo = document.getElementById("ex-tipo").options[document.getElementById("ex-tipo").selectedIndex].text;
+    
+    // Capturamos el estado global (el select de color)
+    var estadoSelect = document.getElementById("ex-estado-global");
+    var estadoTexto = estadoSelect.options[estadoSelect.selectedIndex].text; // Trae el icono y el texto (🟢 Normal)
+    
+    // Capturamos el valor según el tipo de examen
+    let valor = "";
+    if (document.getElementById("val-htco")) valor = document.getElementById("val-htco").value + " %";
+    else if (document.getElementById("val-glic")) valor = document.getElementById("val-glic").value + " mg/dL";
+    else if (document.getElementById("val-coltot")) valor = "Col.Tot:" + document.getElementById("val-coltot").value + " HDL:" + document.getElementById("val-hdl").value + " LDL:" + document.getElementById("val-ldl").value;
+    else if (document.getElementById("val-creat")) valor = "Creat:" + document.getElementById("val-creat").value + " VFG:" + document.getElementById("val-vfg").value;
+    else if (document.getElementById("val-rac")) valor = document.getElementById("val-rac").value + " mg/g";
+    else if (document.getElementById("val-hba1c")) valor = document.getElementById("val-hba1c").value + " %";
+
+    if(!f) return alert("Fecha requerida");
+    document.getElementById("aviso-vacio-examenes")?.remove();
+    
+    examIdCounter++;
+    var card = document.createElement("div");
+    card.className = "exam-card-history";
+    card.id = "exam-card-id-" + examIdCounter;
+    
+    // AQUÍ ESTÁ EL CAMBIO: Incluimos ${estadoTexto} dentro del HTML generado
+    card.innerHTML = `
+        <div class="exam-card-history-header">
+            <span>${estadoTexto} ${tipo} [${f}]</span> 
+            <span onclick="this.parentElement.parentElement.remove()" style="cursor:pointer">❌</span>
+        </div>
+        <div class="program-form-content open" style="padding:6px;">
+            Resultado: <strong>${valor}</strong><br>
+            <small>${document.getElementById("ex-observacion").value}</small>
+        </div>`;
+    
+    document.getElementById("contenedor-historial-examenes-laboratorio").appendChild(card);
+}
+
+        function crearNuevaColumnaParametro() {
+            var n = document.getElementById("nuevo-param-nombre").value.trim();
+            if(!n) return;
+            var id = "extra_" + n.toLowerCase().replace(/[^a-z0-9]/g, "");
+            listadoIdsColumnasExtras.push(id);
+            var contenedorInputs = document.getElementById("contenedor-inputs-dinamicos");
+            var divNuevoInput = document.createElement("div");
+            divNuevoInput.className = "param-input-unit";
+            divNuevoInput.id = "form-unit-" + id;
+            divNuevoInput.innerHTML = `<label>${n.toUpperCase()}:</label><input type="text" id="p-in-${id}" class="ficha-input">`;
+            contenedorInputs.appendChild(divNuevoInput);
+            var hr = document.getElementById("tabla-header-row");
+            var th = document.createElement("th"); th.innerText = n.toUpperCase();
+            hr.insertBefore(th, hr.lastElementChild);
+            document.getElementById("nuevo-param-nombre").value = "";
+        }
+
+        function guardarNuevaEducacion() {
+            var f = document.getElementById("edu-fecha").value, c = document.getElementById("edu-contenido").value;
+            if(!f || !c) return alert("Faltan datos");
+            document.getElementById("fila-vacia-educacion")?.remove();
+            document.getElementById("tabla-historial-educacion").getElementsByTagName("tbody")[0].innerHTML += `<tr><td>${f}</td><td>${document.getElementById("edu-profesional").value}</td><td>${c}</td><td>${document.getElementById("edu-observaciones").value}</td><td><button class="btn-action btn-red" style="padding:2px 6px; font-size:9px;" onclick="this.parentElement.parentElement.remove()">❌</button></td></tr>`;
+        }
+
+        // --- LÓGICA DE PROGRAMAS AGREGADA ---
+      function agregarProgramaAlFlujo() {
+    var s = document.getElementById("selector-programa-principal");
+    var v = s.value;
+    if(!v || document.getElementById("card-"+v)) return;
+    
+    var card = document.createElement("div"); 
+    card.className = "program-card"; 
+    card.id = "card-"+v;
+    
+    if (v === 'mental') {
+        card.innerHTML = `
+            <div class="program-card-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                <span>📁 Programa Salud Mental (PHQ-9)</span>
+                <span onclick="event.stopPropagation(); this.parentElement.parentElement.remove();" style="color:#e11d48; cursor:pointer;">❌</span>
+            </div>
+            <div class="program-form-content open" style="padding:15px;">
+                <table class="phq9-table">
+                    ${renderizarFilasPHQ9()}
+                </table>
+                <div class="phq9-score-container">
+                    <button class="btn-action" onclick="calcularTotalPHQ9()">Calcular PHQ-9</button>
+                    <strong>Total: <span id="total-phq9">0</span> - <span id="res-phq9"></span></strong>
+                    <select id="func-phq9"><option value="0">Dificultad funcional: Ninguna</option><option value="1">Leve</option><option value="2">Moderada</option></select>
+                    <button class="btn-action btn-green" onclick="guardarPHQ9EnActuacion()">💾 Guardar</button>
+                </div>
+            </div>`;
+    } 
+   else if (v === 'adulto_mayor') {
+        card.innerHTML = `
+            <div class="program-card-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                <span>📁 Programa del Adulto Mayor (EMPAM)</span>
+                <span onclick="event.stopPropagation(); this.parentElement.parentElement.remove();" style="color:#e11d48; cursor:pointer;">❌</span>
+            </div>
+            <div class="program-form-content open" style="padding:15px;">
+                <label style="font-weight:bold;">Seleccionar Instrumento:</label>
+                <select id="select-instrumento-empam" onchange="cargarInstrumentoEfam(this.value)">
+                    <option value="">-- Seleccione --</option>
+                    <option value="efam-a">EFAM Parte A</option>
+                    <option value="efam-b">EFAM Parte B</option>
+                    <option value="mmse">MMSE Abreviado</option>
+                    <option value="barthel">Índice de Barthel</option> 
+                    <option value="yesavage">Escala Yesavage</option>
+                    <option value="empam-resumen">Ficha Resumen Integral EMPAM</option>
+                </select>
+
+                <div id="contenedor-instrumento-dinamico">
+                    <!-- Contenedor Yesavage insertado correctamente dentro del flujo dinámico -->
+                    <div id="contenedor-yesavage" style="display:none; margin-top:15px; border:1px solid #2e7d32; padding:20px; border-radius:8px; background-color: #f9fff9;">
+                        <h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; margin-top:0;">Escala de Depresión Geriátrica (Yesavage 15)</h3>
+                        
+                        <table style="width:100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #e8f5e9;">
+                                    <th style="padding:10px; text-align:left;">Pregunta</th>
+                                    <th style="padding:10px; text-align:center; width:150px;">Respuesta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpo-yesavage">
+                                <tr><td>1*. ¿Se considera satisfecho de su vida?</td><td align="center"><select id="yes_1" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+<tr><td>2. ¿Ha ido abandonando muchas de sus actividades e intereses?</td><td align="center"><select id="yes_2" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+ <tr><td>3. ¿Se aburre a menudo?</td><td align="center"><select id="yes_3" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>4. ¿Siente que su vida está vacía?</td><td align="center"><select id="yes_4" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>5*. ¿Está de buen ánimo la mayor parte del tiempo?</td><td align="center"><select id="yes_5" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+<tr><td>6. ¿Tiene miedo que le pueda ocurrir algo malo?</td><td align="center"><select id="yes_6" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>7*. ¿Está contento la mayor parte del tiempo?</td><td align="center"><select id="yes_7" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+ <tr><td>8. ¿Se siente a menudo desvalido?</td><td align="center"><select id="yes_8" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+<tr><td>9. ¿Prefiere quedarse en casa en vez de hacer otras cosas?</td><td align="center"><select id="yes_9" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>10. ¿Siente que tiene más problemas con su memoria que la mayoría?</td><td align="center"><select id="yes_10" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>11*. ¿Piensa que es maravilloso estar vivo?</td><td align="center"><select id="yes_11" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+<tr><td>12. ¿Se siente muy inútil como está en este momento?</td><td align="center"><select id="yes_12" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>13*. ¿Se siente lleno de energías?</td><td align="center"><select id="yes_13" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+                                <tr><td>14. ¿Siente su situación como sin esperanzas?</td><td align="center"><select id="yes_14" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                                <tr><td>15. ¿Cree que la mayoría está mejor que usted?</td><td align="center"><select id="yes_15" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top:20px; padding:15px; background-color: #fff; border: 1px solid #2e7d32; border-radius: 5px;">
+                            <strong>PUNTUACIÓN TOTAL: </strong> <span id="puntaje-yesavage">0</span> puntos. <br>
+                            <strong>INTERPRETACIÓN: </strong> <span id="interpretacion-yesavage" style="font-weight:bold;">Pendiente...</span>
+                        </div>
+                    </div> <!-- Fin contenedor-yesavage -->
+                </div> <!-- Fin contenedor-instrumento-dinamico -->
+            </div>`;
+    }
+
+   else if (v === 'pscv') {
+        card.innerHTML = `
+            <div class="program-card-header" onclick="let content = this.nextElementSibling; content.style.display = (content.style.display === 'block') ? 'none' : 'block';">
+                <span>📁 Cardiovascular: Estimación de Riesgo de Ulceración (Pie Diabético)</span>
+                <span onclick="event.stopPropagation(); this.parentElement.parentElement.remove();" style="color:#e11d48; cursor:pointer; font-weight:bold;">❌</span>
+            </div>
+            <div class="program-form-content" style="padding:15px; background: #ffffff; display:none;">
+                
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 15px; font-size: 11px; line-height: 1.45; color: #475569;">
+                    <strong style="color: #1e3a8a; display: block; margin-bottom: 4px; font-size: 12px;">📌 Criterios Técnicos de Evaluación:</strong>
+                    <ul style="margin: 0; padding-left: 15px;">
+                        <li><strong>Enfermedad Arterial Periférica (EAP):</strong> Se considerará EAP la ausencia de al menos uno de los 4 pulsos pedios (2 pedios | 2 tibiales posteriores).</li>
+                        <li><strong>Sensibilidad protectora (SP):</strong> El tamizaje se realiza evaluando la sensibilidad a la presión superficial utilizando un monofilamento de 10 g en la planta del pie. No aplicar sobre heridas o callos.
+                            <br>• <em>SP Normal:</em> Identificación de la totalidad de los 8 puntos evaluados (4 puntos por pie).
+                            <br>• <em>SP Alterada:</em> Si en al menos uno de los 8 puntos (4 puntos por pie) hay pérdida de la sensibilidad.
+                        </li>
+                        <li><strong>Deformidad (DEF):</strong> Presencia de dedos en garra, dedos en martillo, prominencia de cabezas metatarsales, hallux valgus o artropatía de Charcot. <span style="font-style: italic;">*Nota: Si se presenta de forma aislada sin otra alteración de sensibilidad/vascular, califica como Riesgo Bajo (Grupo 0).</span></li>
+                    </ul>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 15px; align-items: start;">
+                    
+                    <div style="border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden;">
+                        <div style="background: #475569; color: white; padding: 6px 10px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Algoritmo de Decisión en Cascada
+                        </div>
+                        <table class="matrix-table" style="margin: 0; width: 100%; font-size: 11px; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <th style="text-align: left; padding: 12px; width: 65%; font-weight: normal; background: #f8fafc; line-height: 1.4;">
+                                    <strong>1° Paso:</strong> ¿Tiene antecedentes de úlcera activa, antecedentes de úlcera cicatrizada o amputación previa?
+                                </th>
+                                <td style="padding: 12px; text-align: center; white-space: nowrap; background: #ffffff;">
+                                    <label style="cursor:pointer; margin-right: 10px;"><input type="radio" name="u_h_pscv" value="si" onchange="calcularAlgoritmo(this)"> Sí</label>
+                                    <label style="cursor:pointer;"><input type="radio" name="u_h_pscv" value="no" onchange="calcularAlgoritmo(this)"> No</label>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <th style="text-align: left; padding: 12px; font-weight: normal; background: #f8fafc; line-height: 1.4;">
+                                    <strong>2° Paso:</strong> ¿Ausencia de pulsos arteriales periféricos o signos evidentes de Enfermedad Arterial Periférica (EAP)?
+                                </th>
+                                <td style="padding: 12px; text-align: center; white-space: nowrap; background: #ffffff;">
+                                    <label style="cursor:pointer; margin-right: 10px;"><input type="radio" name="u_e_pscv" value="si" onchange="calcularAlgoritmo(this)"> Sí</label>
+                                    <label style="cursor:pointer;"><input type="radio" name="u_e_pscv" value="no" onchange="calcularAlgoritmo(this)"> No</label>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <th style="text-align: left; padding: 12px; font-weight: normal; background: #f8fafc; line-height: 1.4;">
+                                    <strong>3° Paso:</strong> ¿Pérdida comprobada de la sensibilidad protectora (Prueba de Monofilamento Alterada)?
+                                </th>
+                                <td style="padding: 12px; text-align: center; white-space: nowrap; background: #ffffff;">
+                                    <label style="cursor:pointer; margin-right: 10px;"><input type="radio" name="u_s_pscv" value="alt" onchange="calcularAlgoritmo(this)"> Sí</label>
+                                    <label style="cursor:pointer;"><input type="radio" name="u_s_pscv" value="norm" onchange="collapse = false; calcularAlgoritmo(this)"> No</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="text-align: left; padding: 12px; font-weight: normal; background: #f8fafc; line-height: 1.4;">
+                                    <strong>4° Paso:</strong> ¿Presenta deformidades anatómicas del pie (DEF) severas o asociadas a alteraciones de calzado/autocuidado?
+                                </th>
+                                <td style="padding: 12px; text-align: center; white-space: nowrap; background: #ffffff;">
+                                    <label style="cursor:pointer; margin-right: 10px;"><input type="radio" name="u_d_pscv" value="si" onchange="calcularAlgoritmo(this)"> Sí</label>
+                                    <label style="cursor:pointer;"><input type="radio" name="u_d_pscv" value="no" onchange="calcularAlgoritmo(this)"> No</label>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div style="border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; height: 100%;">
+                        <div style="background: #1e3a8a; color: white; padding: 6px 10px; font-weight: bold; font-size: 11px; text-transform: uppercase; text-align: center; letter-spacing: 0.5px;">
+                            Clasificación y Conducta de Actuación
+                        </div>
+                        
+                        <div id="box-riesgo-pscv" class="risk-box risk-0" style="padding: 22px; font-size: 15px; border-bottom: 1px solid #cbd5e1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90px; transition: background-color 0.2s ease; background-color: #f0fdf4; color: #166534;">
+                            <span style="font-size: 10px; letter-spacing: 1px; font-weight: normal; opacity: 0.85; text-transform: uppercase;">Categoría de Riesgo</span>
+                            <strong id="txt-grupo-pscv" style="font-size: 22px; margin-top: 4px; font-family: monospace;">GRUPO 0</strong>
+                            <span id="txt-nombre-riesgo-pscv" style="font-weight: bold; font-size: 13px; text-transform: uppercase; margin-top: 2px;">Riesgo Bajo</span>
+                        </div>
+                        
+                        <div style="padding: 12px; background: #f8fafc; flex-grow: 1; font-size: 11px; line-height: 1.5;">
+                            <strong style="color: #1e3a8a; display: block; margin-bottom: 5px; font-size: 11px;">📋 Periodicidad y Orientación de Derivación:</strong>
+                            <p id="rec-texto-pscv" style="margin: 0; color: #334155; font-style: italic;">
+                                Control anual (Cada 12 meses) en APS. Educación integral en autocuidado del pie, examen diario e indicación estricta de calzado apropiado. (La presencia aislada de DEF mantiene al paciente en riesgo bajo).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; text-align: right;">
+                    <button type="button" class="btn-action" style="background: #22c55e; color: white; padding: 7px 15px; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; font-size: 12px;" onclick="guardarRiesgoEnActuacion('pscv')">💾 Traspasar Riesgo a Hoja de Actuación</button>
+                </div>
+            </div>`;
+    }
+
+    document.getElementById("contenedor-programas-activos").appendChild(card);
+    s.value = "";
+}
+  function renderizarFilasPHQ9() {
+    let p = [
+        "1. Poco interés o placer en hacer cosas", 
+        "2. Sentirse desanimado/a, deprimido/a, o sin esperanza", 
+        "3. Problemas para quedarse o mantenerse dormido/a, o dormir demasiado", 
+        "4. Sentirse cansado/a o tener poca energía", 
+        "5. Tener poco apetito o comer en exceso", 
+        "6. Sentir falta de amor propio", 
+        "7. Dificultad para concentrarse", 
+        "8. Moverse o hablar lentamente / inquietud", 
+        "9. Pensamientos de que estaría mejor muerto/a"
+    ];
+
+    // Encabezados de frecuencia
+    let html = `<thead><tr><th>Durante las dos últimas semanas...</th><th>Nunca (0)</th><th>Varios días (1)</th><th>> Mitad días (2)</th><th>Casi todos (3)</th></tr></thead><tbody>`;
+    
+    // Filas
+    p.forEach((pregunta, i) => {
+        html += `<tr><td style="text-align:left;">${pregunta}</td>${[0,1,2,3].map(val => `<td><input type="radio" name="p${i}" value="${val}"></td>`).join('')}</tr>`;
+    });
+    
+    // Pregunta final de dificultad funcional
+    html += `</tbody><tfoot><tr><td colspan="5" style="text-align:left; background:#f9f9f9; padding:10px;">
+        <strong>Si usted se identificó con algún problema, ¿cuán difícil se le ha hecho cumplir con su trabajo, atender su casa o relacionarse?</strong><br>
+        <select id="func-phq9" class="ficha-select" style="margin-top:5px;">
+            <option value="0">Nada en absoluto</option>
+            <option value="1">Algo difícil</option>
+            <option value="2">Muy difícil</option>
+            <option value="3">Extremadamente difícil</option>
+        </select>
+    </td></tr></tfoot>`;
+    
+    return html;
+}
+
+        function calcularTotalPHQ9() {
+            let total = 0;
+            for(let i=0; i<9; i++) {
+                let sel = document.querySelector('input[name="p'+i+'"]:checked');
+                if(sel) total += parseInt(sel.value);
+            }
+            
+            let res = "Sin síndrome depresivo (Depresión mínima)";
+            if (total >= 5 && total <= 9) res = "Depresión leve";
+            else if (total >= 10 && total <= 14) res = "Depresión moderada";
+            else if (total >= 15 && total <= 19) res = "Depresión moderadamente grave";
+            else if (total >= 20) res = "Depresión grave";
+
+            document.getElementById("total-phq9").innerText = total;
+            document.getElementById("res-phq9").innerText = res;
+        }
+
+        function guardarPHQ9EnActuacion() {
+            let total = document.getElementById("total-phq9").innerText;
+            let res = document.getElementById("res-phq9").innerText;
+            let funcText = document.getElementById("func-phq9").options[document.getElementById("func-phq9").selectedIndex].text;
+            
+            let textoAdicional = `\n- Aplicación PHQ-9 (Salud Mental): Puntaje Total ${total}/27 (${res}). Dificultad funcional reportada: ${funcText}.`;
+            document.getElementById("reg-actuacion").value += textoAdicional;
+            alert("✓ Puntaje guardado en Actuación.");
+        }
+
+        function calcularAlgoritmo(tablaElement) {
+    // 1. Encontrar la tarjeta contenedora para aislar las variables de forma segura
+    var card = tablaElement.closest('.program-card');
+    if (!card) return; // Control de seguridad por si el DOM no ha cargado totalmente
+    
+    // 2. Rescatar los valores marcados en los nuevos 4 pasos de la cascada (por defecto asume estado normal)
+    var paso1 = card.querySelector('input[name="u_h_pscv"]:checked')?.value || "no";
+    var paso2 = card.querySelector('input[name="u_e_pscv"]:checked')?.value || "no"; 
+    var paso3 = card.querySelector('input[name="u_s_pscv"]:checked')?.value || "norm";
+    var paso4 = card.querySelector('input[name="u_d_pscv"]:checked')?.value || "no";
+
+    // 3. Capturar los elementos visuales del bloque derecho que vamos a refrescar
+    var boxRiesgo = card.querySelector("#box-riesgo-pscv");
+    var txtGrupo = card.querySelector("#txt-grupo-pscv");
+    var txtNombre = card.querySelector("#txt-nombre-riesgo-pscv");
+    var txtRec = card.querySelector("#rec-texto-pscv");
+    
+    // Objeto contenedor que guardará el resultado según la cascada
+    let resultado = {};
+
+    // 4. Matriz de Clasificación en Cascada Estricta corregida con tus reglas:
+    if (paso1 === "si") {
+        // 1° Paso = SÍ -> Riesgo Máximo
+        resultado = { 
+            bg: "#fff1f2", // Rojo sutil médico
+            border: "#fecdd3", 
+            color: "#9f1239",
+            grupo: "GRUPO 3", 
+            nombre: "Riesgo Máximo",
+            rec: "Control periódico cada 1 a 3 meses por equipo multidisciplinario (médico, enfermera, podólogo). Derivación prioritaria a unidades de curación avanzada o especialista vascular según criterio clínico." 
+        };
+    } 
+    else if (paso2 === "si") {
+        // 2° Paso = SÍ -> Riesgo Alto
+        resultado = { 
+            bg: "#fff7ed", // Naranja sutil
+            border: "#ffedd5", 
+            color: "#9a3412",
+            grupo: "GRUPO 2", 
+            nombre: "Riesgo Alto",
+            rec: "Control preventivo cada 3 meses en APS. Inspección minuciosa de calzado, derivación a podología clínica protectora, manejo intensivo de factores metabólicos y evaluación de pulsos periféricos." 
+        };
+    } 
+    else if (paso3 === "alt" && paso4 === "si") {
+        // 3° Paso = SÍ (Alterado) Y 4° Paso = SÍ (Tiene deformidad) -> Riesgo Alto
+        resultado = { 
+            bg: "#fff7ed", 
+            border: "#ffedd5", 
+            color: "#9a3412",
+            grupo: "GRUPO 2", 
+            nombre: "Riesgo Alto",
+            rec: "Control preventivo cada 3 meses en APS debido a la co-existencia de pérdida de sensibilidad protectora y deformidad anatómica. Requiere calzado terapéutico y órtesis a medida." 
+        };
+    } 
+    else if (paso3 === "alt" && paso4 === "no") {
+        // 3° Paso = SÍ (Alterado) Y 4° Paso = NO -> Riesgo Moderado
+        resultado = { 
+            bg: "#fefce8", // Amarillo sutil
+            border: "#fef08a", 
+            color: "#854d0e",
+            grupo: "GRUPO 1", 
+            nombre: "Riesgo Moderado",
+            rec: "Control semestral (Cada 6 meses) en APS. Educación avanzada enfocada en prevención, manejo de zonas críticas de hiperpresión y evaluación periódica de la sensibilidad." 
+        };
+    } 
+    else {
+        // Cualquier otro caso (Todo NO, o SOLO el Paso 4 es SÍ) -> Riesgo Bajo (Se cumple tu regla de DEF sola = Riesgo Bajo)
+        resultado = { 
+            bg: "#f0fdf4", // Verde muy claro
+            border: "#bbf7d0", 
+            color: "#166534",
+            grupo: "GRUPO 0", 
+            nombre: "Riesgo Bajo", 
+            rec: "Control anual (Cada 12 meses) en APS. Educación integral en autocuidado del pie, examen diario e indicación estricta de calzado apropiado. (La presencia aislada de deformidad o examen normal mantiene al paciente en riesgo bajo)." 
+        };
+    }
+
+    // 5. Inyección segura de datos en la interfaz sin reconstruir el DOM
+    if (boxRiesgo) {
+        boxRiesgo.style.backgroundColor = resultado.bg;
+        boxRiesgo.style.borderColor = resultado.border;
+        boxRiesgo.style.color = resultado.color;
+    }
+    if (txtGrupo) {
+        txtGrupo.innerText = resultado.grupo;
+    }
+    if (txtNombre) {
+        txtNombre.innerText = resultado.nombre;
+    }
+    if (txtRec) {
+        txtRec.innerText = resultado.rec;
+    }
+}
+
+       // --- LÓGICA PARA EL HISTORIAL CRONOLÓGICO ---
+function docenteAgregarCronologico() {
+    // 1. Tomamos lo que escribiste en los cuadros
+    var fecha = document.getElementById("crono-fecha").value;
+    var prof = document.getElementById("crono-profesional").value;
+    var accion = document.getElementById("crono-accion").value;
+    var anam = document.getElementById("crono-anamnesis").value;
+
+    // 2. Si no escribiste nada, no hacemos nada
+    if (!fecha || !accion) return alert("Por favor completa al menos la Fecha y la Acción.");
+
+    // 3. Buscamos la lista donde queremos mostrarlo
+    var lista = document.getElementById("lista-cronologico-docente");
+    var li = document.createElement("li"); // Creamos un nuevo renglón
+    li.style.marginBottom = "8px"; // Le damos un poquito de aire
+    li.innerHTML = `<strong>${fecha} - ${prof}</strong><br>${accion}<br><em>${anam}</em>`;
+    lista.appendChild(li); // Lo ponemos en la lista
+
+    // 4. Limpiamos los cuadros para que puedas escribir algo nuevo
+    document.getElementById("crono-fecha").value = "";
+    document.getElementById("crono-profesional").value = "";
+    document.getElementById("crono-accion").value = "";
+    document.getElementById("crono-anamnesis").value = "";
+}
+function guardarRiesgoEnActuacion(programa) {
+    if (programa === 'pscv') {
+        // 1. Localizar la tarjeta del programa de forma segura
+        var card = document.querySelector('.program-card');
+        if (!card) {
+            alert("⚠️ No se encontró el formulario de evaluación activo.");
+            return;
+        }
+
+        // 2. Extraer los textos calculados en tiempo real
+        var grupo = card.querySelector('#txt-grupo-pscv')?.innerText || "GRUPO 0";
+        var nombreRiesgo = card.querySelector('#txt-nombre-riesgo-pscv')?.innerText || "Riesgo Bajo";
+
+        // 3. Glosa institucional exacta solicitada
+        var textoFinal = `Prog. Salud: Diabetes - Formulario: ESTIMACIÓN DEL RIESGO DE ULCERACIÓN DEL PIE EN PERSONAS CON DIABETES , Resultado: "${grupo} - ${nombreRiesgo}"`;
+
+        // 4. Seleccionar de forma precisa el campo de "ACTUACIÓN / PLAN E INDICACIONES"
+        // Obtenemos todos los textareas del bloque de consulta clínica lateral
+        var todosLosTextareas = document.querySelectorAll('.panel-registro textarea, textarea');
+        var txtActuacion = null;
+
+        if (todosLosTextareas.length >= 5) {
+            // El 5° textarea (índice 4) corresponde a "ACTUACIÓN / PLAN E INDICACIONES" en la interfaz visual
+            txtActuacion = todosLosTextareas[4];
+        } else {
+            // Resguardo por si la estructura cambia, buscando de forma aproximada el campo inferior
+            txtActuacion = document.querySelector('#actuacion_plan') || 
+                           document.querySelector('[name*="actuacion"]') || 
+                           todosLosTextareas[todosLosTextareas.length - 1];
+        }
+
+        // 5. Inyectar el texto exclusivamente en el campo seleccionado
+        if (txtActuacion) {
+            if (txtActuacion.value.trim() !== "") {
+                txtActuacion.value += "\n" + textoFinal;
+            } else {
+                txtActuacion.value = textoFinal;
+            }
+
+            // Disparar los eventos nativos para asegurar que el simulador registre y guarde el cambio
+            txtActuacion.dispatchEvent(new Event('input', { bubbles: true }));
+            txtActuacion.dispatchEvent(new Event('change', { bubbles: true }));
+
+            alert("✅ Resultado traspasado con éxito exclusivamente a la sección de Actuación / Plan e Indicaciones.");
+        } else {
+            alert("⚠️ Error: No se pudo localizar de forma única el campo de Actuación en la ficha clínica.");
+        }
+    }
+}// --- LÓGICA PARA EL LISTADO DE EPISODIOS ---
+function docenteAgregarEpisodio() {
+    // 1. Tomamos lo que escribiste
+    var nombre = document.getElementById("episodio-nombre").value;
+    if (!nombre) return alert("Ingresa un diagnóstico.");
+
+    // 2. Lo agregamos a la lista
+    var lista = document.getElementById("lista-episodios-docente");
+    var li = document.createElement("li");
+    li.style.marginBottom = "4px";
+    li.innerHTML = `✅ ${nombre} <button onclick="this.parentElement.remove()" style="border:none; color:red; cursor:pointer;">(x)</button>`;
+    lista.appendChild(li);
+
+    // 3. Limpiamos el cuadro
+    document.getElementById("episodio-nombre").value = "";
+}
+function descargarProgreso() {
+    let data = {};
+    
+    // 1. Captura de inputs generales (excluyendo el textarea del caso clínico)
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.id === 'textarea-caso-clinico') return; // Lo manejamos aparte
+        if (el.type !== 'radio' || el.checked) {
+            if(el.id || el.name) data[el.id || el.name] = el.value;
+        }
+    });
+    
+    // 2. Guardamos los historiales y bloques estructurales
+    data['historial_cronologico'] = document.getElementById("lista-cronologico-docente").innerHTML;
+    data['historial_episodios'] = document.getElementById("lista-episodios-docente").innerHTML;
+    data['programas_activos'] = document.getElementById("contenedor-programas-activos").innerHTML;
+    data['pacientes_guardados_html'] = document.getElementById("contenedor-chips-pacientes").innerHTML;
+    data['pacientes_data_global'] = JSON.stringify(listadoPacientesGlobales);
+    data['historial_examenes'] = document.getElementById("contenedor-historial-examenes-laboratorio").innerHTML;
+    
+    // --- NUEVO: GUARDAR EL TEXTO EXCLUSIVO DEL CASO CLÍNICO ---
+    const textareaCaso = document.getElementById("textarea-caso-clinico");
+    data['texto_caso_clinico_docente'] = textareaCaso ? textareaCaso.value : "";
+    
+    // 3. Tablas específicas (Educación y Medicamentos)
+    let tablaEdu = document.getElementById("tabla-historial-educacion");
+    if(tablaEdu) {
+        data['historial_educacion'] = tablaEdu.getElementsByTagName("tbody")[0].innerHTML;
+    }
+
+    let tablaMed = document.getElementById("tabla-medicamentos-tbody");
+    if(tablaMed) {
+        data['historial_medicamentos'] = tablaMed.innerHTML;
+    }
+
+    // 4. Creación y descarga del archivo JSON
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ficha_clinica_completa.json';
+    a.click();
+    alert("✓ Ficha y Caso Clínico descargados con éxito.");
+}
+function cargarProgreso(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            // Función auxiliar para inyectar HTML de forma segura
+            const setHTML = (id, htmlContent) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.innerHTML = htmlContent;
+                } else {
+                    console.warn(`Aviso: El contenedor '${id}' no existe en la página actual.`);
+                }
+            };
+
+            // 1. Restaurar bloques visuales e historiales nativos
+            if(data['historial_cronologico']) setHTML("lista-cronologico-docente", data['historial_cronologico']);
+            if(data['historial_episodios']) setHTML("lista-episodios-docente", data['historial_episodios']);
+            if(data['programas_activos']) setHTML("contenedor-programas-activos", data['programas_activos']);
+            if(data['pacientes_guardados_html']) setHTML("contenedor-chips-pacientes", data['pacientes_guardados_html']);
+            if(data['historial_examenes']) setHTML("contenedor-historial-examenes-laboratorio", data['historial_examenes']);
+            
+            // Restaurar educación (tabla tbody)
+            if(data['historial_educacion']) {
+                let tablaEdu = document.getElementById("tabla-historial-educacion");
+                if(tablaEdu) {
+                    let tbody = tablaEdu.getElementsByTagName("tbody")[0];
+                    if(tbody) tbody.innerHTML = data['historial_educacion'];
+                }
+            }
+
+            // Restaurar tabla de medicamentos activos
+            if(data['historial_medicamentos']) {
+                setHTML("tabla-medicamentos-tbody", data['historial_medicamentos']);
+            }
+            
+            // Restaurar memoria global de pacientes de la simulación
+            if(data['pacientes_data_global']) {
+                listadoPacientesGlobales = JSON.parse(data['pacientes_data_global']);
+            }
+
+            // --- NUEVO: RESTAURACIÓN DIRECTA Y SINCRONIZADA DEL CASO CLÍNICO ---
+            if(data['texto_caso_clinico_docente'] !== undefined) {
+                // Inyectamos el valor al text area
+                const txCaso = document.getElementById('textarea-caso-clinico');
+                if (txCaso) {
+                    txCaso.value = data['texto_caso_clinico_docente'];
+                }
+                // Sincronizamos la variable global interna que usa tu HTML
+                textoCasoClinicoGlobal = data['texto_caso_clinico_docente'];
+            }
+            
+            // Llaves que se cargaron manualmente y deben ignorarse en los inputs automáticos
+            const llavesExcluidas = [
+                'historial_cronologico', 
+                'historial_episodios', 
+                'programas_activos', 
+                'pacientes_guardados_html', 
+                'pacientes_data_global', 
+                'historial_examenes',
+                'historial_educacion',
+                'historial_medicamentos',
+                'texto_caso_clinico_docente',
+                'textarea-caso-clinico'
+            ];
+            
+            // 2. Restaurar campos de texto del banner del paciente, selectores y radios
+            for (const key in data) {
+                if (llavesExcluidas.includes(key)) continue;
+
+                const el = document.getElementById(key);
+                if (el) {
+                    el.value = data[key];
+                } else {
+                    try {
+                        const valorLimpio = String(data[key]).replace(/"/g, '\\"');
+                        const radio = document.querySelector(`input[name="${key}"][value="${valorLimpio}"]`);
+                        if (radio) radio.checked = true;
+                    } catch (err) {
+                        console.warn("No se pudo mapear el elemento:", key);
+                    }
+                }
+            }
+            
+            // 3. Recalcular instrumentos clínicos tras la restauración
+            if (typeof calcularTotalPHQ9 === 'function') {
+                try { calcularTotalPHQ9(); } catch (e) {}
+            }
+            
+            if (typeof calcularAlgoritmo === 'function') {
+                try {
+                    var cardPscv = document.querySelector('.program-card');
+                    if (cardPscv) {
+                        var inputMuestra = cardPscv.querySelector('input[type="radio"]');
+                        if (inputMuestra) calcularAlgoritmo(inputMuestra);
+                    }
+                } catch (e) {}
+            }
+            
+            alert("✓ Ficha, Historiales y Caso Clínico restaurados con éxito.");
+
+        } catch (err) {
+            console.error("Error detallado:", err);
+            alert("❌ Error al cargar: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+// --- ESCUCHA LOS CAMBIOS Y PASA EL VALOR REAL ELEGIDO ---
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'select-instrumento-empam') {
+        cargarInstrumentoEfam(e.target.value);
+    }
+});
+// --- 1. FUNCIÓN PRINCIPAL (CONTROLADOR DE CLICS Y SELECTORES) ---
+function cargarInstrumentoEfam(valor) {
+    var contenedor = document.getElementById("contenedor-instrumento-dinamico");
+    if (!contenedor) return;
+
+    // Convertimos a minúsculas para evitar errores de tipeo
+    let opcion = valor.toLowerCase().trim();
+
+    if (opcion === "efam-a" || opcion === "efam_a") {
+        mostrarInstrumento(); // Dibuja la Parte A (Busca el contenedor internamente)
+    } 
+    else if (opcion === "barthel") {
+        mostrarBarthel(); // Dibuja el Índice de Barthel
+    }
+    else if (opcion === "mmse" || opcion === "minimental") {
+        mostrarMMSE(); // Dibuja el MMSE Reestructurado
+    }
+   else if (opcion === "yesavage") {
+        // Inyecta dinámicamente la Escala de Yesavage limpia y funcional (Ordenada 1-15)
+        contenedor.innerHTML = `
+            <div id="contenedor-yesavage" style="margin-top:15px; border:1px solid #2e7d32; padding:20px; border-radius:8px; background-color: #f9fff9;">
+                <h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; margin-top:0;">Escala de Depresión Geriátrica (Yesavage 15)</h3>
+                
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #e8f5e9;">
+                            <th style="padding:10px; text-align:left;">Pregunta</th>
+                            <th style="padding:10px; text-align:center; width:150px;">Respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-yesavage">
+                        <tr><td>1*. ¿Se considera satisfecho de su vida?</td><td align="center"><select id="yes_1" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+                        <tr><td>2. ¿Ha ido abandonando muchas de sus actividades e intereses?</td><td align="center"><select id="yes_2" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>3. ¿Se aburre a menudo?</td><td align="center"><select id="yes_3" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>4. ¿Siente que su vida está vacía?</td><td align="center"><select id="yes_4" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>5*. ¿Está de buen ánimo la mayor parte del tiempo?</td><td align="center"><select id="yes_5" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+                        <tr><td>6. ¿Tiene miedo que le pueda ocurrir algo malo?</td><td align="center"><select id="yes_6" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>7*. ¿Está contento la mayor parte del tiempo?</td><td align="center"><select id="yes_7" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+                        <tr><td>8. ¿Se siente a menudo desvalido?</td><td align="center"><select id="yes_8" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>9. ¿Prefiere quedarse en casa en vez de hacer otras cosas?</td><td align="center"><select id="yes_9" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>10. ¿Siente que tiene más problemas con su memoria que la mayoría?</td><td align="center"><select id="yes_10" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>11*. ¿Piensa que es maravilloso estar vivo?</td><td align="center"><select id="yes_11" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+                        <tr><td>12. ¿Se siente muy inútil como está en este momento?</td><td align="center"><select id="yes_12" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>13*. ¿Se siente lleno de energías?</td><td align="center"><select id="yes_13" onchange="calcularYesavage()"><option value="">--</option><option value="0">Sí</option><option value="1">No</option></select></td></tr>
+                        <tr><td>14. ¿Siente su situación como sin esperanzas?</td><td align="center"><select id="yes_14" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                        <tr><td>15. ¿Cree que la mayoría está mejor que usted?</td><td align="center"><select id="yes_15" onchange="calcularYesavage()"><option value="">--</option><option value="1">Sí</option><option value="0">No</option></select></td></tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 15px; padding: 12px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 11px; line-height: 1.6; border-radius: 4px; color: #334155; text-align: left;">
+                    <span style="display:block; margin-bottom:4px; font-weight:bold; color:#2e7d32; font-size:12px;">CRITERIOS DE CALIFICACIÓN:</span>
+                    • <strong>PUNTUACIÓN:</strong> Un punto cuando responde (NO) a las respuestas marcadas con asterisco (*). Un punto cuando responda (SÍ) al resto de las preguntas.<br>
+                    • <strong>ESCALA:</strong> Normal (0 - 5), Depresión Leve (6 - 9), Depresión Establecida (Mayor a 10).
+                </div>
+
+                <div style="margin-top:20px; padding:15px; background-color: #fff; border: 1px solid #2e7d32; border-radius: 5px;">
+                    <strong>PUNTUACIÓN TOTAL: </strong> <span id="puntaje-yesavage">0</span> puntos. <br>
+                    <strong>INTERPRETACIÓN: </strong> <span id="interpretacion-yesavage" style="font-weight:bold;">Pendiente...</span>
+                </div>
+            </div>`;
+    }
+    else if (opcion === "efam-b" || opcion === "efam_b") {
+        // Dibuja la Parte B con el espacio de resultado al lado del puntaje
+        contenedor.innerHTML = `
+            <div style="padding:10px; font-size:11px; border:1px solid #ccc; background:#ffffff; font-family: inherit;">
+                <h6 style="margin-top:0; color:#1e3a8a; font-size:13px; border-bottom:2px solid #1e3a8a; padding-bottom:5px;">EFAM Parte B</h6>
+                <table id="tabla-efam-b" style="width:100%; border-collapse:collapse; margin-bottom:15px;">
+                    <tbody>
+                        ${generarFilaEfamB("1  Presión Arterial", "pa", [
+                            {v: 13, t: "PA normal, sin antecedentes HTA"},
+                            {v: 13, t: "PA normal, c/dg previo, en control y con medicamentos"},
+                            {v: 9, t: "PA normal, c/dg previo, sin control pero c/medicamentos"},
+                            {v: 6, t: "PA normal, c/dg previo, con o sin control y sin medicamentos"},
+                            {v: 3, t: "PA elevada, sin antecedentes HTA"},
+                            {v: 0, t: "PA elevada y c/dg previo, con o sin control o sin medicamentos"}
+                        ])}
+                        ${generarFilaEfamB("2  Diabetes", "diabetes", [
+                            {v: 13, t: "Sin diabetes"},
+                            {v: 6, t: "Diagnosticada, en control y con medicamentos"},
+                            {v: 3, t: "Diagnosticada, sin control y sin medicamentos"},
+                            {v: 0, t: "Diagnosticada, sin control u sin medicamentos"}
+                        ])}
+                        ${generarFilaEfamB("3  Lee diario, revista o libro", "lectura", [
+                            {v: 9, t: "Todos los días"}, {v: 7, t: "2 o 3 veces por semana"}, {v: 5, t: "Una vez por semana"}, {v: 2, t: "De vez en cuando"}, {v: 0, t: "Casi nunca o nunca"}  
+                        ])}
+                        ${generarFilaEfamB("4  MMSE (Puntaje)", "mmse", [
+                            {v: 9, t: "19"}, {v: 7, t: "15 a 18"}, {v: 5, t: "13 a 14"}, {v: 0, t: "Menos de 13"}
+                        ])}
+                        ${generarFilaEfamB("5  En el último mes se ha deprimido", "deprimido", [
+                            {v: 9, t: "Nunca"}, {v: 7, t: "Casi nunca"}, {v: 2, t: "Bastante seguido"}, {v: 0, t: "Casi todo el tiempo"}
+                        ])}
+                        ${generarFilaEfamB("6  En el último mes se ha sentido nervioso o angustiado", "nervioso", [
+                            {v: 9, t: "Nunca"}, {v: 7, t: "Casi nunca"}, {v: 2, t: "Bastante seguido"}, {v: 0, t: "Casi todo el tiempo"}
+                        ])}
+                    </tbody>
+                </table>
+                <div id="bloque-criterios-b" style="margin: 15px 0; padding: 12px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 11px; line-height: 1.6; border-radius: 4px; color: #334155; text-align: left;">
+                    <span style="display:block; margin-bottom:4px; font-weight:bold; color:#1e3a8a; font-size:12px;">TOTAL PARTE B:</span>
+                    • Si suma puntaje Mayor o igual a 46 = <strong style="color:#16a34a;">Persona Autovalente sin riesgo</strong> (Derivación cada 12 meses)<br>
+                    • Si suma puntaje Minor o igual a 45 = <strong style="color:#dc2626;">Persona autovalente con riesgo</strong> (Derivación cada 6 meses)
+                </div>
+
+                <div style="margin-top:10px; padding:10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
+                    <div>
+                        <button type="button" class="btn-action" style="background:#475569; color:white; border:none; padding:6px 12px; cursor:pointer; font-weight:bold; border-radius:4px; margin-right:10px;" onclick="calcularTotalEfamB()">Calcular Puntaje Total B</button>
+                        <strong>Total Parte B: <span id="total-efam-b">0</span> pts</strong>
+                        <span id="resultado-efam-b" style="margin-left:15px; font-weight:bold;"></span>
+                    </div>
+                    <div>
+                        <button type="button" style="background:#22c55e; color:white; border:none; padding:6px 12px; cursor:pointer; font-weight:bold; border-radius:4px;" onclick="guardarEfamBEnActuacion()">💾 Guardar en Actuación</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // =========================================================================
+    // NUEVA OPCIÓN UBICADA CORRECTAMENTE EN EL FLUJO LÓGICO
+    // =========================================================================
+    else if (opcion === "empam-resumen" || opcion === "empam_resumen") {
+        contenedor.innerHTML = `
+            <div style="padding:15px; background:#ffffff; font-family:inherit; font-size:11px; color:#334155;">
+                <h5 style="margin:0 0 15px 0; color:#1e3a8a; border-bottom:2px solid #1e3a8a; padding-bottom:5px; font-size:14px;">FICHA DE EVALUACIÓN DE SALUD INTEGRAL (EMPAM)</h5>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px;">
+                    <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">I.- MEDICIONES</legend>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="padding:4px;">PA Sentado: <input type="text" id="empam_pa_sentado" style="width:70px;"></td>
+                            <td style="padding:4px;">PA de Pie: <input type="text" id="empam_pa_pie" style="width:70px;"></td>
+                            <td style="padding:4px;">Pulso/FC: <input type="text" id="empam_fc" style="width:50px;"> pm</td>
+                            <td style="padding:4px;">Peso: <input type="text" id="empam_peso" style="width:50px;"> Kg</td>
+                            <td style="padding:4px;">Talla: <input type="text" id="empam_talla" style="width:50px;"> cm</td>
+                            <td style="padding:4px;">I.M.C: <input type="text" id="empam_imc" style="width:50px;" readonly></td>
+                            <td style="padding:4px;">CC: <input type="text" id="empam_cc" style="width:50px;"> cm</td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:8px; background:#f8fafc; padding:6px; border-radius:4px;">
+                        <strong>¿Baja de peso involuntariamente en los últimos 6 meses?</strong>
+                        <label style="margin-left:15px; cursor:pointer;"><input type="radio" name="empam_baja_peso" value="SI"> SÍ</label>
+                        <label style="margin-left:15px; cursor:pointer;"><input type="radio" name="empam_baja_peso" value="NO"> NO</label>
+                        <span style="margin-left:25px;">Observaciones: <input type="text" id="empam_obs_mediciones" style="width:40%;"></span>
+                    </div>
+                </fieldset>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px;">
+                    <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">II.- ANTECEDENTES</legend>
+                    <div style="margin-bottom:8px;">
+                        <strong>Actividad Física:</strong>
+                        <label style="margin-left:10px;"><input type="checkbox" name="empam_af" value="SI"> SÍ</label>
+                        <label style="margin-left:10px;"><input type="checkbox" name="empam_af" value="NO"> NO</label>
+                        <label style="margin-left:10px;"><input type="checkbox" name="empam_af" value="SOLO"> SOLO</label>
+                        <label style="margin-left:10px;"><input type="checkbox" name="empam_af" value="GRUPO"> EN GRUPO</label>
+                        
+                        <strong style="margin-left:30px;">Vacunación:</strong>
+                        <label style="margin-left:10px;"><input type="checkbox" id="v_influenza"> Influenza</label>
+                        <label style="margin-left:10px;"><input type="checkbox" id="v_neumo"> Neumocócica</label>
+                        
+                        <strong style="margin-left:30px;">PACAM:</strong>
+                        <label style="margin-left:10px;"><input type="radio" name="empam_pacam" value="SI"> SÍ</label>
+                        <label style="margin-left:10px;"><input type="radio" name="empam_pacam" value="NO"> NO</label>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <strong style="color:#0f172a; display:block; margin-bottom:5px;">Patologías Crónicas:</strong>
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; background:#f8fafc; padding:8px; border-radius:4px;">
+                            <label><input type="checkbox" name="pat_cronica" value="HTA"> HTA</label>
+                            <label><input type="checkbox" name="pat_cronica" value="DM"> DM</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Dislipidemia"> Dislipidemia</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Obesidad"> Obesidad</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Desnutrición"> Desnutrición</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Hipotiroidismo"> Hipotiroidismo</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Artritis"> Art. Reumatoidea</label>
+                            <label><input type="checkbox" name="pat_cronica" value="LCFA"> LCFA</label>
+                            <label><input type="checkbox" name="pat_cronica" value="IC"> IC Cardiopatía</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Constipación"> Constipación</label>
+                            <label><input type="checkbox" name="pat_cronica" value="DHC"> DHC</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Alteración Oral"> Alteración Oral</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Cáncer"> Cáncer</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Artrosis"> Artrosis</label>
+                            <label><input type="checkbox" name="pat_cronica" value="EPOC"> EPOC</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Depresión"> Depresión</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Demencia"> Demencia</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Secuela ACV"> Secuela ACV</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Parkinson"> Parkinson</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Asma"> Asma</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Hipoacusia"> Hipoacusia</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Renal Crónica"> Enf. Renal Crónica</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Incontinencia"> Incont. Urinaria</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Osteoporosis"> Osteoporosis</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Ceguera"> Ceguera/Baja visión</label>
+                            <label><input type="checkbox" name="pat_cronica" value="Otras"> Otras</label>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <strong style="color:#0f172a; display:block; margin-bottom:5px;">Patologías Agudas:</strong>
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; background:#f1f5f9; padding:8px; border-radius:4px;">
+                            <label><input type="checkbox" name="pat_aguda" value="Neumonía"> Neumonía</label>
+                            <label><input type="checkbox" name="pat_aguda" value="Fractura Muñeka"> Fractura muñeca</label>
+                            <label><input type="checkbox" name="pat_aguda" value="Fractura Cadera"> Fractura cadera</label>
+                            <label><input type="checkbox" name="pat_aguda" value="Fractura Columna"> Fractura columna</label>
+                            <label><input type="checkbox" name="pat_aguda" value="IAM"> IAM</label>
+                            <label><input type="checkbox" name="pat_aguda" value="ACV"> Ataque cerebro vascular</label>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        <strong style="color:#0f172a; display:block; margin-bottom:5px;">Terapia Farmacológica (Marque con una x el fármaco respectivo o agregue):</strong>
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; background:#f8fafc; padding:8px; border-radius:4px;">
+                            <label><input type="checkbox" name="farmaco" value="Atenolol"> Atenolol</label>
+                            <label><input type="checkbox" name="farmaco" value="Fluoxetina"> Fluoxetina</label>
+                            <label><input type="checkbox" name="farmaco" value="Metformina"> Metformina</label>
+                            <label><input type="checkbox" name="farmaco" value="Anticoagulante"> Anticoagulante</label>
+                            <label><input type="checkbox" name="farmaco" value="Genfibrozilo"> Genfibrozilo</label>
+                            <label><input type="checkbox" name="farmaco" value="Nifedipino"> Nifedipino</label>
+                            <label><input type="checkbox" name="farmaco" value="Alprazolam"> Alprazolam</label>
+                            <label><input type="checkbox" name="farmaco" value="Glibenclamida"> Glibenclamida</label>
+                            <label><input type="checkbox" name="farmaco" value="Omeprazol"> Omeprazol</label>
+                            <label><input type="checkbox" name="farmaco" value="Amitriptilina"> Amitriptilina</label>
+                            <label><input type="checkbox" name="farmaco" value="Hidroclorotiazida"> Hidroclorotiazida</label>
+                            <label><input type="checkbox" name="farmaco" value="Propanolol"> Propanolol</label>
+                            <label><input type="checkbox" name="farmaco" value="Aspirina"> Aspirina</label>
+                            <label><input type="checkbox" name="farmaco" value="Insulina"> Insulina</label>
+                            <label><input type="checkbox" name="farmaco" value="Paracetamol"> Paracetamol</label>
+                            <label><input type="checkbox" name="farmaco" value="Celecoxib"> Celecoxib</label>
+                            <label><input type="checkbox" name="farmaco" value="Imipramina"> Imipramina</label>
+                            <label><input type="checkbox" name="farmaco" value="Sertralina"> Sertralina</label>
+                            <label><input type="checkbox" name="farmaco" value="Clorfenamina"> Clorfenamina</label>
+                            <label><input type="checkbox" name="farmaco" value="Salbutamol"> Salbutamol</label>
+                            <label><input type="checkbox" name="farmaco" value="Tolbutamida"> Tolbutamida</label>
+                            <label><input type="checkbox" name="farmaco" value="Clordiazepoxido"> Clordiazepoxido</label>
+                            <label><input type="checkbox" name="farmaco" value="Bromuro Ipratropio"> Bromuro ipratropio</label>
+                            <label><input type="checkbox" name="farmaco" value="Diazepam"> Diazepam</label>
+                            <label><input type="checkbox" name="farmaco" value="Ibuprofeno"> Ibuprofeno</label>
+                            <label><input type="checkbox" name="farmaco" value="Diclofenaco"> Diclofenaco</label>
+                            <label><input type="checkbox" name="farmaco" value="Corticoides Inhalados"> Corticoides inhalados</label>
+                            <label><input type="checkbox" name="farmaco" value="Enalapril"> Enalapril</label>
+                            <label><input type="checkbox" name="farmaco" value="Losartan Potásico"> Losartan potásico</label>
+                            <label><input type="checkbox" name="farmaco" value="Furosemida"> Furosemida</label>
+                            <label><input type="checkbox" name="farmaco" value="Levodopa"> Levodopa</label>
+                        </div>
+                        <div style="margin-top:6px; background:#f8fafc; padding:6px; border-radius:4px;">
+                            <span>Otros: <input type="text" id="empam_otros_farmacos" style="width:85%;"></span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px; background:#fffbeb;">
+                    <legend style="font-weight:bold; color:#b45309; padding:0 5px;">III.- EVALUACIÓN FUNCIONAL EFAM y OTROS TEST</legend>
+                    
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:10px; background:#ffffff; border:1px solid #d97706;">
+                        <tr style="background:#fef3c7;">
+                            <th style="padding:6px; border:1px solid #cbd5e1; text-align:left;">Instrumento / Estado Clasificado</th>
+                            <th style="padding:6px; border:1px solid #cbd5e1; text-align:center; width:45%;">Puntaje / Indicador Capturado</th>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px; border:1px solid #cbd5e1;"><strong>EFAM Parte A:</strong></td>
+                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+                                <input type="text" id="empam_manual_efam_a" placeholder="Ingrese puntaje y resultado" style="width:95%; padding:4px; font-size:11px; text-align:center; border:1px solid #cbd5e1; border-radius:3px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px; border:1px solid #cbd5e1;"><strong>EFAM Parte B:</strong></td>
+                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+                                <input type="text" id="empam_manual_efam_b" placeholder="Ingrese puntaje y resultado" style="width:95%; padding:4px; font-size:11px; text-align:center; border:1px solid #cbd5e1; border-radius:3px;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px; border:1px solid #cbd5e1;"><strong>Índice de Barthel:</strong></td>
+                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+                                <input type="text" id="empam_manual_barthel" placeholder="Ingrese puntaje y resultado" style="width:95%; padding:4px; font-size:11px; text-align:center; border:1px solid #cbd5e1; border-radius:3px;">
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <strong>Usted observa en el usuario:</strong>
+                            <table style="width:100%; margin-top:4px;">
+                                <tr><td>• Mareos:</td><td><label><input type="radio" name="obs_mareos" value="SI"> SÍ</label> <label><input type="radio" name="obs_mareos" value="NO"> NO</label></td></tr>
+                                <tr><td>• Temblor:</td><td><label><input type="radio" name="obs_temblor" value="SI"> SÍ</label> <label><input type="radio" name="obs_temblor" value="NO"> NO</label></td></tr>
+                                <tr><td>• Alt. Equilibrio:</td><td><label><input type="radio" name="obs_eq" value="SI"> SÍ</label> <label><input type="radio" name="obs_eq" value="NO"> NO</label></td></tr>
+                                <tr><td>• Alt. Visual:</td><td><label><input type="radio" name="obs_vis" value="SI"> SÍ</label> <label><input type="radio" name="obs_vis" value="NO"> NO</label></td></tr>
+                                <tr><td>• Alt. Auditiva:</td><td><label><input type="radio" name="obs_aud" value="SI"> SÍ</label> <label><input type="radio" name="obs_aud" value="NO"> NO</label></td></tr>
+                            </table>
+                        </div>
+                        <div>
+                            <strong></strong>
+                            <table style="width:100%; margin-top:4px;">
+                                <tr><td>• Dolor de Hombro:</td><td><label><input type="radio" name="dolor_hombro" value="SI"> SÍ</label> <label><input type="radio" name="dolor_hombro" value="NO"> NO</label></td></tr>
+                                <tr><td>• Dolor de Espalda:</td><td><label><input type="radio" name="dolor_espalda" value="SI"> SÍ</label> <label><input type="radio" name="dolor_espalda" value="NO"> NO</label></td></tr>
+                                <tr><td>• Dolor de Cadera:</td><td><label><input type="radio" name="dolor_cadera" value="SI"> SÍ</label> <label><input type="radio" name="dolor_cadera" value="NO"> NO</label></td></tr>
+                                <tr><td>• Dolor de Rodilla:</td><td><label><input type="radio" name="dolor_rodilla" value="SI"> SÍ</label> <label><input type="radio" name="dolor_rodilla" value="NO"> NO</label></td></tr>
+                                <tr><td>• Otro Dolor:</td><td><label><input type="radio" name="dolor_otro" value="SI"> SÍ</label> <label><input type="radio" name="dolor_otro" value="NO"> NO</label></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px;">
+                    <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">IV.- RIESGO DE CAÍDAS</legend>
+                    <strong>¿Ha tenido caídas este año?</strong>
+                    <label style="margin-left:10px;"><input type="radio" name="caidas_anio" value="SI"> SÍ</label>
+                    <label style="margin-left:10px;"><input type="radio" name="caidas_anio" value="NO"> NO</label>
+                    
+                    <div style="margin-top:8px; display:flex; gap:15px;">
+                        <div>Estación Unipodal: Der <input type="text" style="width:40px;"> seg / Izq <input type="text" style="width:40px;"> seg</div>
+                        <div>Timed Up and Go: <input type="text" style="width:40px;"> seg 
+                            <label style="margin-left:10px;"><input type="checkbox"> Normal</label>
+                            <label><input type="checkbox"> Leve</label>
+                            <label><input type="checkbox"> Moderado</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <fieldset style="border:1px solid #cbd5e1; border-radius:4px; padding:10px;">
+                        <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">V.- IDENTIFICACIÓN DE REDES</legend>
+                        ¿Tiene quien lo apoye? <label><input type="radio" name="redes_apoyo" value="SI"> SÍ</label> <label><input type="radio" name="redes_apoyo" value="NO"> NO</label>
+                        <div style="margin-top:5px;">
+                            Proviene de: <label><input type="checkbox"> Familia</label> <label><input type="checkbox"> Amigos</label> <label><input type="checkbox"> Vecinos</label>
+                        </div>
+                    </fieldset>
+                    <fieldset style="border:1px solid #cbd5e1; border-radius:4px; padding:10px;">
+                        <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">VI.- SOSPECHA DE MALTRATO</legend>
+                        ¿Sospecha? <label><input type="radio" name="sospecha_maltrato" value="SI"> SÍ</label> <label><input type="radio" name="sospecha_maltrato" value="NO"> NO</label>
+                        <input type="text" placeholder="Observaciones" style="width:90%; margin-top:4px;">
+                    </fieldset>
+                </div>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px;">
+                    <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">VII.- Exámenes Anuales</legend>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="padding:4px;">Glicemia: <input type="text" style="width:55px;"> mg/dl</td>
+                            <td style="padding:4px;">Colesterol Total: <input type="text" style="width:55px;"> mg/dl</td>
+                            <td style="padding:4px;">Baciloscopía (BAAR): <input type="text" style="width:40px;"> +/-</td>
+                            <td style="padding:4px;">VDRL: <input type="text" style="width:60px;"></td>
+                            <td style="padding:4px;">Test de VIH: 
+                                <label style="margin-left:5px;"><input type="radio" name="empam_vih" value="SI"> SÍ</label>
+                                <label style="margin-left:5px;"><input type="radio" name="empam_vih" value="NO"> NO</label>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:6px;">
+                        Otros: <input type="text" style="width:85%;">
+                    </div>
+                </fieldset>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px; background:#f8fafc;">
+                    <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">VIII.- Adicciones</legend>
+                    <div style="margin-bottom:8px;">
+                        <strong>Bebe?</strong>
+                        <label style="margin-left:10px;"><input type="radio" name="empam_bebe" value="SI"> SÍ</label>
+                        <label style="margin-left:10px;"><input type="radio" name="empam_bebe" value="NO"> NO</label>
+                        <span style="margin-left:20px; color:#ef4444; font-weight:bold;">Puntaje > 7 puntos: Beber Problema: AUDIT</span>
+                        <span style="margin-left:15px; text-decoration:underline; cursor:pointer; color:#1e40af;">Ingresar a Formulario Cuestionario de Auto-Diagnóstico sobre Riesgos en el uso de Alcohol</span>
+                    </div>
+                    <div style="border-top:1px dashed #cbd5e1; padding-top:6px;">
+                        <strong>Fuma?</strong>
+                        <label style="margin-left:10px;"><input type="radio" name="empam_fuma" value="SI"> SÍ</label>
+                        <label style="margin-left:10px;"><input type="radio" name="empam_fuma" value="NO"> NO</label>
+                        <span style="margin-left:20px;">N° de Cigarros al día: <input type="text" style="width:40px;"></span>
+                        <span style="margin-left:25px;">Consejería Breve Antitabaco: </span>
+                        <label style="margin-left:5px;"><input type="radio" name="empam_consejeria_tabaco" value="SI"> SÍ</label>
+                        <label style="margin-left:5px;"><input type="radio" name="empam_consejeria_tabaco" value="NO"> NO</label>
+                    </div>
+                </fieldset>
+
+                <fieldset style="border:1px solid #cbd5e1; border-radius:4px; margin-bottom:15px; padding:10px;">
+                    <legend style="font-weight:bold; color:#1e3a8a; padding:0 5px;">IX.- Plan de Atención (Marque las acciones que llevará a cabo según riesgos detectados)</legend>
+                    <div style="font-weight:bold; background:#e2e8f0; padding:4px; margin-bottom:4px;">Según nivel de funcionalidad:</div>
+                    <table style="width:100%; border-collapse:collapse; font-size:10.5px;">
+                        <tbody>
+                            <tr style="border-bottom:1px solid #cbd5e1;">
+                                <td style="padding:4px; width:22%; font-weight:bold; color:#16a34a; vertical-align:top;">Autovalente Sin Riesgo</td>
+                                <td style="padding:4px;">
+                                    <label style="display:block; margin-bottom:2px;"><input type="checkbox"> EMPAM Anual</label>
+                                    <label style="display:block;"><input type="checkbox"> Actividades de Promoción y Prevención</label>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #cbd5e1; background:#f8fafc;">
+                                <td style="padding:4px; font-weight:bold; color:#ea580c; vertical-align:top;">Autovalente con Riesgo</td>
+                                <td style="padding:4px;">
+                                    <label style="display:block; margin-bottom:3px;"><input type="checkbox"> <strong>HTA, DM:</strong> Control Programa Salud Cardiovascular (PSCV) vigente. Derivar a médico para ingreso PSCV-Educación</label>
+                                    <label style="display:block; margin-bottom:3px;"><input type="checkbox"> <strong>Sospecha de Ansiedad:</strong> Derivar a Médico Educación</label>
+                                    <label style="display:block; margin-bottom:3px;"><input type="checkbox"> <strong>Sospecha de Depresión:</strong> Derivar a Médico para Diagnóstico (GES) Educación</label>
+                                    <div style="margin-bottom:3px; padding-left:4px;">
+                                        <strong>MMSE Menor a 13:</strong><br>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Derivar a profesional para aplicar MM ext. Folstein</label>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Derivar a médico para clasificación según resultados</label>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Taller de Memoria</label>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Derivación a Especialidad Nivel Ambulatorio</label>
+                                    </div>
+                                    <label style="display:block; font-weight:bold; color:#475569; margin-top:4px;"><input type="checkbox"> Control de Seguimiento de su condición de riesgo antes de los 6 meses de realizado EMPAM</label>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #cbd5e1;">
+                                <td style="padding:4px; font-weight:bold; color:#dc2626; vertical-align:top;">En Riesgo de Dependencia</td>
+                                <td style="padding:4px;">
+                                    <label style="display:block; margin-bottom:3px;"><input type="checkbox"> <strong>Limitación Funcional y Dolor osteoarticular:</strong> Derivar a Médico para Diagnósticos (activación de Flujograma GES, RBC y derivación a especialista según corresponda)</label>
+                                    <div style="margin-bottom:3px; padding-left:4px;">
+                                        <strong>MMSE Menor a 13:</strong><br>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Derivar a profesional para aplicar MM ext. Folstein</label>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Derivar a médico para clasificación según resultados</label>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Taller de Memoria</label>
+                                        <label style="display:block; margin-left:10px;"><input type="checkbox"> Derivación a Especialidad Nivel Ambulatorio</label>
+                                    </div>
+                                    <label style="display:block; font-weight:bold; color:#475569; margin-top:4px;"><input type="checkbox"> Control de Seguimiento de su condición de riesgo antes de los 6 meses de realizado EMPAM</label>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #cbd5e1; background:#f8fafc;">
+                                <td style="padding:4px; font-weight:bold; color:#7f1d1d; vertical-align:top;">Dependiente Leve/Moderado</td>
+                                <td style="padding:4px;">
+                                    <label style="display:block; margin-bottom:2px;"><input type="checkbox"> Derivar a médico para diagnósticos (GES,RBC)</label>
+                                    <label style="display:block; margin-bottom:2px;"><input type="checkbox"> Centro Comunitario de Rehabilitación (RBC)</label>
+                                    <label style="display:block; margin-bottom:2px;"><input type="checkbox"> GES Ayudas Técnicas</label>
+                                    <label style="display:block;"><input type="checkbox"> Visita Domiciliaria Integral</label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px; font-weight:bold; color:#4c0519; vertical-align:top;">Dependiente Grave y Total</td>
+                                <td style="padding:4px;">
+                                    <label style="display:block; margin-bottom:2px;"><input type="checkbox"> Programa de Atención Domiciliaria a Personas con Dependencia</label>
+                                    <label style="display:block;"><input type="checkbox"> Visita Domiciliaria Integral</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:6px; background:#f8fafc; padding:6px; border:1px dashed #cbd5e1;">
+                        <strong>Según otras condiciones de salud pesquisadas:</strong> 
+                        <input type="text" style="width:70%; margin-left:5px;">
+                    </div>
+                </fieldset>
+
+                <div style="text-align:right; margin-top:15px;">
+                   <div style="text-align:right; margin-top:15px;">
+                    <button type="button" style="background:#1e3a8a; color:white; border:none; padding:8px 16px; font-weight:bold; border-radius:4px; cursor:pointer;" onclick="guardarFichaMaestraEnActuacion()">💾 Guardar Resumen EMPAM</button>
+                </div>
+            </div>
+        `;
+    }
+}
+// --- 2. FUNCIONES PROPIAS DE EFAM PARTE A (ACTUALIZADAS CON CUADRO CRITERIO) ---
+function mostrarInstrumento() {
+    const contenedor = document.getElementById("contenedor-instrumento-dinamico");
+    if (!contenedor) return;
+    
+    contenedor.innerHTML = `
+        <h6 style="margin-top:0; color:#1e3a8a; font-family: inherit;">EFAM Parte A - Evaluación Funcional</h6>
+        <table class="table-empam" style="width:100%; border-collapse:collapse; font-size: 10px; border: 1px solid #ccc; background:#ffffff; font-family: inherit;">
+            <tr style="background:#f1f1f1;">
+                <th style="padding:5px; border:1px solid #ccc;">Pregunta / Ítem</th>
+                <th style="padding:5px; border:1px solid #ccc;">6 pts</th><th style="padding:5px; border:1px solid #ccc;">5 pts</th><th style="padding:5px; border:1px solid #ccc;">4 pts</th><th style="padding:5px; border:1px solid #ccc;">3 pts</th><th style="padding:5px; border:1px solid #ccc;">2 pts</th><th style="padding:5px; border:1px solid #ccc;">1 pt</th><th style="padding:5px; border:1px solid #ccc;">0 pts</th>
+            </tr>
+            ${generarFilaEstructurada("1. ¿Puede bañarse o ducharse?", "efam_a1", "Sin ayuda", "", "", "Con alguna ayuda", "", "", "Incapaz")}
+            ${generarFilaEstructurada("2. ¿Es Ud. capaz de manejar su propio dinero? ", "efam_a2", "Sin ayuda", "", "", "Con alguna ayuda", "", "", "Incapaz")}
+            ${generarFilaEstructurada("3.  ¿Puede Ud. tomar sus propios medicamentos?", "efam_a3", "Sin ayuda", "", "", "Con alguna ayuda", "", "", "Incapaz")}
+            ${generarFilaEstructurada("4. ¿Prepara Ud. Su comida? ", "efam_a4", "Sin ayuda", "", "", "Con alguna ayuda", "", "", "Incapaz")}
+            ${generarFilaEstructurada("5.  ¿Puede hacer las tareas de la casa? ", "efam_a5", "Sin ayuda", "", "", "Con alguna ayuda", "", "", "Incapaz")}
+            ${generarFilaEstructurada("6. MMSE", "efam_a6", "18-19", "", "15-17", "13-14", "", "", "< 13")}
+            ${generarFilaEstructurada("7. Escolaridad. Pregunte por los años de escolaridad cumplidos", "efam_a7", "13 ó más", "11-12", "8-10", "6-7", "4-5", "2-3", "0-1")}
+            
+            <tr>
+                <td style="padding:5px; border:1px solid #ccc;"><strong>8. Extensión brazos</strong></td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a8" value="6" onchange="calcularPuntajeEFAM()"> Lo logra sin dificultad con ambas manos</label>
+                </td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">-</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a8" value="4" onchange="calcularPuntajeEFAM()"> Lo logra sin dificultad con una mano</label>
+                </td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">-</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a8" value="2" onchange="calcularPuntajeEFAM()"> Presenta dificultad con ambas manos para lograrlo</label>
+                </td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">-</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a8" value="0" onchange="calcularPuntajeEFAM()"> No lo logra </label>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:5px; border:1px solid #ccc;"><strong>9. De pie y derecho, agáchese, tomar un objeto desde el suelo y levantarse</strong></td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a9" value="6" onchange="calcularPuntajeEFAM()"> Se encuclilla, toma el objeto y se levanta sin dificultad</label>
+                </td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">-</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a9" value="4" onchange="calcularPuntajeEFAM()"> Se encuclilla y toma el objeto sin dificultad, pero le cuesta levantarse</label>
+                </td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">-</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a9" value="2" onchange="calcularPuntajeEFAM()"> Se encuclilla bien pero tiene dificultad para tomar el objeto y levantarse</label>
+                </td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">-</td>
+                <td style="padding:5px; border:1px solid #ccc; text-align:center;">
+                    <label style="cursor:pointer;"><input type="radio" name="efam_a9" value="0" onchange="calcularPuntajeEFAM()"> Le cuesta mucho encuclillarse y no lo logra</label>
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-top:15px; padding:10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; display:flex; align-items:center; justify-content:space-between; font-family: inherit;">
+            <div>
+                <strong style="font-size:13px;">
+                    Total Parte A: <span id="total-efam">0</span> pts 
+                    <span id="resultado-efam" style="margin-left:15px; font-weight:bold;"></span>
+                </strong>
+            </div>
+            <div>
+                <button class="btn-action" type="button" style="background-color:#22c55e; color:white; border:none; padding:6px 12px; cursor:pointer; font-weight:bold; border-radius:4px;" onclick="guardarEFAMEnActuacion()">💾 Guardar en Actuación</button>
+            </div>
+        </div>
+
+        <div style="margin-top:12px; padding:10px; border:1px solid #cbd5e1; background:#f8fafc; font-size:11px; line-height:1.5; border-radius:4px; color:#334155; font-family: inherit;">
+            <span style="display:block; margin-bottom:4px; font-weight:bold; color:#005088;">Criterios de Clasificación y Conducta:</span>
+            • Si suma puntaje Menor o igual a 42 = <strong style="color:#dc2626;">Riesgo de Dependencia</strong><br>
+            • Si suma puntaje Mayor o igual a 43 = <strong style="color:#16a34a;">Persona Autovalente</strong><br>
+            <span style="display:block; margin-top:5px; border-top:1px dashed #cbd5e1; padding-top:4px; font-weight:500;">
+                📢 <strong>Regla de derivación:</strong> Si la persona tuvo un puntaje igual o menor a 42 <strong>no aplique Parte B</strong>. Aplicar parte B únicamente a la persona con puntaje de autovalente para determinar su condición de riesgo.
+            </span>
+        </div>`;
+    
+    // Si ya se calculó el MMSE previamente, dejamos seleccionada la opción correspondiente de forma automática
+    if (typeof recuperarValorMmsEnParteA === "function") {
+        recuperarValorMmsEnParteA();
+    }
+}
+
+function generarFilaEstructurada(pregunta, name, v6, v5, v4, v3, v2, v1, v0) {
+    const radio = (val, label) => label ? `<label style="cursor:pointer;"><input type="radio" name="${name}" value="${val}" onchange="calcularPuntajeEFAM()"> ${label}</label>` : "";
+    return `<tr>
+        <td style="padding:5px; border:1px solid #ccc;"><strong>${pregunta}</strong></td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v6 ? radio(6, v6) : ""}</td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v5 ? radio(5, v5) : ""}</td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v4 ? radio(4, v4) : ""}</td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v3 ? radio(3, v3) : ""}</td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v2 ? radio(2, v2) : ""}</td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v1 ? radio(1, v1) : ""}</td>
+        <td style="padding:5px; border:1px solid #ccc; text-align:center;">${v0 ? radio(0, v0) : ""}</td>
+    </tr>`;
+}
+
+function calcularPuntajeEFAM() {
+    let total = 0;
+    document.querySelectorAll('input[type="radio"]:checked').forEach(i => {
+        if(i.name.startsWith("efam_a")) total += parseInt(i.value);
+    });
+    
+    document.getElementById("total-efam").innerText = total;
+    
+    const el = document.getElementById("resultado-efam");
+    if (total >= 43) {
+        el.innerText = "- Autovalente";
+        el.style.color = "#16a34a";
+    } else {
+        el.innerText = "- Riesgo de Dependencia";
+        el.style.color = "#dc2626";
+    }
+    // Guardamos temporalmente el valor para persistencia entre cambios de pestañas
+    window.ultimoTotalEfamA = total;
+}
+
+function guardarEFAMEnActuacion() {
+    const total = document.getElementById("total-efam").innerText;
+    const estado = document.getElementById("resultado-efam").innerText.replace("- ", "");
+    const texto = `\nProg. Salud: A. Mayor - Formulario: EFAM PARTE A , Resultado: ${total} pts (${estado})`;
+    
+    const campo = document.getElementById("reg-actuacion"); 
+    if (campo) {
+        campo.value += texto;
+        alert("✓ Datos guardados en Actuación.");
+    } else {
+        alert("Error: No se encontró el campo 'reg-actuacion'.");
+    }
+}
+// --- 3. FUNCIONES PROPIAS DE EFAM PARTE B ---
+function generarFilaEfamB(titulo, name, opciones) {
+    let optionsHtml = opciones.map(op => 
+        `<label style="display:block; margin:4px 0; cursor:pointer;"><input type="radio" name="efam_b_${name}" value="${op.v}" onchange="calcularTotalEfamB()"> ${op.t} <span style="color:#2563eb; font-weight:bold;">(${op.v} pts)</span></label>`
+    ).join('');
+    return `<tr>
+        <td style="padding:8px; border:1px solid #ccc; background:#f8fafc; width: 25%; vertical-align:top;"><strong>${titulo}</strong></td>
+        <td style="padding:8px; border:1px solid #ccc;">${optionsHtml}</td>
+    </tr>`;
+}
+
+function calcularTotalEfamB() {
+    let total = 0;
+    document.querySelectorAll('#tabla-efam-b input[type="radio"]:checked').forEach(i => {
+        total += parseInt(i.value);
+    });
+    
+    document.getElementById("total-efam-b").innerText = total;
+    
+    const elResultado = document.getElementById("resultado-efam-b");
+    if (elResultado) {
+        if (total >= 46) {
+            elResultado.innerText = "- Autovalente sin riesgo";
+            elResultado.style.color = "#16a34a";
+        } else {
+            elResultado.innerText = "- Autovalente con riesgo";
+            elResultado.style.color = "#dc2626";
+        }
+    }
+
+    // --- COLOCAR EL CUADRO JUSTO ANTES DE LOS BOTONES ---
+    inyectarCuadroAntesDeBotones();
+
+    return total;
+}
+
+function guardarEfamBEnActuacion() {
+    const total = calcularTotalEfamB();
+    const estado = (total >= 46) ? "Autovalente sin riesgo" : "Autovalente con riesgo";
+    
+    const texto = `\nProg. Salud: A. Mayor - Formulario: EFAM PARTE B (Discriminación de Riesgo), Resultado: ${total}/62 pts (${estado}).`;
+    const campo = document.getElementById("reg-actuacion");
+    if(campo) {
+        campo.value += texto;
+        alert("✓ Datos del EFAM Parte B guardados en Actuación.");
+    }
+}
+
+// --- FUNCIÓN PARA UBICAR EL CUADRO ANTES DE LOS BOTONES ---
+function inyectarCuadroAntesDeBotones() {
+    const tabla = document.getElementById("tabla-efam-b");
+    if (!tabla) return;
+
+    // Buscamos el contenedor del puntaje/botones para usarlo como punto de referencia
+    const botonCalcular = document.querySelector('button[onclick="calcularTotalEfamB()"]') || 
+                          document.getElementById("total-efam-b")?.closest('div') ||
+                          tabla.nextElementSibling;
+                          
+    if (!botonCalcular) return;
+
+    let contenedorInfo = document.getElementById("bloque-criterios-b");
+    
+    if (!contenedorInfo) {
+        contenedorInfo = document.createElement("div");
+        contenedorInfo.id = "bloque-criterios-b";
+        // Estilo tipo recuadro limpio
+        contenedorInfo.style = "margin: 15px 0; padding: 12px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 11px; line-height: 1.6; border-radius: 4px; color: #334155; font-family: inherit; width: 100%; box-sizing: border-box;";
+        
+        // ¡Aquí está el truco! Lo inserta justo ANTES de la barra de botones
+        botonCalcular.parentNode.insertBefore(contenedorInfo, botonCalcular);
+    }
+
+    // Contenido exacto solicitado
+    contenedorInfo.innerHTML = `
+        <span style="display:block; margin-bottom:6px; font-weight:bold; color:#1e3a8a; font-size:12px;">TOTAL PARTE B:</span>
+        • Si suma puntaje Mayor o igual a 46 = <strong style="color:#16a34a;">Persona Autovalente sin riesgo</strong> (Derivación cada 12 meses)<br>
+        • Si suma puntaje Menor o igual a 45 = <strong style="color:#dc2626;">Persona autovalente con riesgo</strong> (Derivación cada 6 meses)
+    `;
+}
+// --- 4. FUNCIONES PROPIAS DEL MMSE ABREVIADO (REESTRUCTURADO SEGÚN PARÁMETROS EXACTOS) ---
+function mostrarMMSE() {
+    const contenedor = document.getElementById("contenedor-instrumento-dinamico");
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <div style="padding:15px; border:1px solid #cbd5e1; background:#ffffff; font-family: inherit;">
+            <h6 style="margin-top:0; color:#005088; font-size:13px; border-bottom:2px solid #005088; padding-bottom:5px;">
+                EVALUACIÓN COGNITIVA (MMSE ABREVIADO) - REESTRUCTURADO
+            </h6>
+            
+            <table id="tabla-mmse" style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:15px;">
+                <thead>
+                    <tr style="background:#f1f5f9; color:#1e293b;">
+                        <th style="padding:6px; border:1px solid #cbd5e1; text-align:left; width: 70%;">Ítem / Instrucción / Estímulo</th>
+                        <th style="padding:6px; border:1px solid #cbd5e1; text-align:center; width: 30%;">Registro Clínico y Puntaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background:#f8fafc;"><td colspan="2" style="padding:6px; border:1px solid #cbd5e1;"><strong>1. Por favor dígame la fecha de hoy, sondee el mes, día del mes, año y día de la semana. (Anote un punto por cada respuesta correcta)</strong></td></tr>
+                    ${generarFilaCheckMMSE("Mes (1 pto.)", "mmse_o_mes")}
+                    ${generarFilaCheckMMSE("Día del Mes (1 pto.)", "mmse_o_dia_mes")}
+                    ${generarFilaCheckMMSE("Año (1 pto.)", "mmse_o_anio")}
+                    ${generarFilaCheckMMSE("Día de la Semana (1 pto.)", "mmse_o_dia_sem")}
+
+                    <tr style="background:#f8fafc;"><td colspan="2" style="padding:6px; border:1px solid #cbd5e1;"><strong>2. Ahora le voy a nombrar tres objetos. Después que se los diga, le voy a pedir que repita en voz alta los que recuerde, en cualquier orden. Recuerde los objetos porque se los voy a nombrar más adelante. ¿Tiene alguna pregunta que hacerme? (Explique bien para que el entrevistado entienda la tarea). Lea los nombres de los objetos lentamente y a ritmo constante aproximadamente una palabra cada dos segundos. Se anota un punto por cada objeto recordado en el primer intento.</strong></td></tr>
+                    ${generarFilaCheckMMSE("Árbol (1 pto.)", "mmse_f_arbol")}
+                    ${generarFilaCheckMMSE("Mesa (1 pto.)", "mmse_f_mesa")}
+                    ${generarFilaCheckMMSE("Avión (1 pto.)", "mmse_f_avion")}
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1; color:#64748b; padding-left:15px;"><em>Si no es correcto, repita hasta aprenderlas (máx 5). Registre repeticiones:</em></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+                            N° Repeticiones: <input type="number" id="mmse_f_repeticiones" min="0" max="5" value="0" style="width:45px; text-align:center;">
+                        </td>
+                    </tr>
+
+                    <tr style="background:#f8fafc;"><td colspan="2" style="padding:6px; border:1px solid #cbd5e1;"><strong>3. Ahora voy a decirle unos números y quiero que me los repita de atrás para adelante: 1 - 3 - 5 - 7 - 9 , anote la respuesta (el número), en el espacio correspondiente. La puntuación es el número de dígitos en el orden correcto ej: 9-7-5-3-1 = 5 ptos.</strong></td></tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1; padding-left:15px;">
+                            <label style="display:block; margin-bottom:4px;"><strong>Respuesta del entrevistado:</strong></label>
+                            <input type="text" id="mmse_a_respuesta" placeholder="Ej: 9-7-5-3-1" style="width:90%; padding:3px; font-size:11px; border:1px solid #cbd5e1; border-radius:3px;">
+                        </td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; vertical-align:middle;">
+                            <span>Número de dígitos en orden correcto:</span><br>
+                            <input type="number" id="mmse_a_puntaje" min="0" max="5" value="0" style="width:55px; text-align:center; margin-top:5px; padding:2px;" onchange="calcularTotalMMSE()"> ptos
+                        </td>
+                    </tr>
+
+                    <tr style="background:#f8fafc;"><td colspan="2" style="padding:6px; border:1px solid #cbd5e1;"><strong>4. Le voy a dar un papel; tómelo con su mano derecha, dóblelo por la mitad con ambas manos y colóqueselo sobre las piernas: "Anote un punto por cada palabra que recuerde. No importa el orden".</strong></td></tr>
+                    ${generarFilaCheckMMSE("Toma papel con mano derecha (1 pto.)", "mmse_c_toma")}
+                    ${generarFilaCheckMMSE("Dobla por la mitad con ambas manos (1 pto.)", "mmse_c_dobla")}
+                    ${generarFilaCheckMMSE("Colocar sobre sus piernas (1 pto.)", "mmse_c_piernas")}
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1; padding-left:15px; color:#dc2626;">¿No ejecutó ningún comando de la instrucción?</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+                            <button type="button" style="font-size:10px; padding:2px 6px; background:#f1f5f9; border:1px solid #cbd5e1; cursor:pointer; border-radius:3px;" onclick="marcarNingunaAccion()">Ninguna Acción (0 pts)</button>
+                        </td>
+                    </tr>
+
+                    <tr style="background:#f8fafc;"><td colspan="2" style="padding:6px; border:1px solid #cbd5e1;"><strong>5. Hace un momento le leí una serie de 3 palabras y usted repitió las que recordó. Por favor dígame ahora cuáles recuerda. (No importa el orden)</strong></td></tr>
+                    ${generarFilaCheckMMSE("Árbol (1 pto.)", "mmse_e_arbol")}
+                    ${generarFilaCheckMMSE("Mesa (1 pto.)", "mmse_e_mesa")}
+                    ${generarFilaCheckMMSE("Avión (1 pto.)", "mmse_e_avion")}
+
+                    <tr style="background:#f8fafc;"><td colspan="2" style="padding:6px; border:1px solid #cbd5e1;"><strong>6. Por favor copie este dibujo (Muestre al entrevistado el dibujo. La acción está correcta si las figuras no se cruzan más de la mitad. Contabilice un punto si está correcto)</strong></td></tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; background:#fafafa;">
+                            <svg width="130" height="70" viewBox="0 0 140 80" style="margin:5px auto; display:block;">
+                                <circle cx="55" cy="40" r="28" fill="none" stroke="#334155" stroke-width="2" />
+                                <circle cx="85" cy="40" r="28" fill="none" stroke="#334155" stroke-width="2" />
+                            </svg>
+                        </td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; vertical-align:middle;">
+                            <label style="margin-right:10px; cursor:pointer; font-weight:bold; color:#16a34a;">
+                                <input type="radio" name="mmse_dibujo" value="1" onchange="calcularTotalMMSE()"> CORRECTO (1 pto)
+                            </label><br><br>
+                            <label style="cursor:pointer; font-weight:bold; color:#dc2626;">
+                                <input type="radio" name="mmse_dibujo" value="0" checked onchange="calcularTotalMMSE()"> INCORRECTO (0 pts)
+                            </label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top:15px; padding:12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
+                <div style="flex-grow:1;">
+                    <strong style="font-size:13px;">
+                        Total MMSE: <span id="total-mmse">0</span> / 19 pts
+                        <span id="resultado-mmse" style="margin-left:15px; font-weight:bold;"></span>
+                    </strong>
+                </div>
+                <div>
+                    <button class="btn-action" type="button" style="background:#22c55e; color:white; border:none; padding:6px 12px; cursor:pointer; font-weight:bold; border-radius:4px;" onclick="guardarMMSEEnActuacion()">💾 Guardar en Actuación</button>
+                </div>
+            </div>
+        </div>
+    `;
+    recuperarValoresInternosMMSE();
+}
+
+function generarFilaCheckMMSE(texto, id) {
+    return `<tr>
+        <td style="padding:6px; border:1px solid #cbd5e1; padding-left:15px;">${texto}</td>
+        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+            <label style="cursor:pointer;">
+                <input type="checkbox" id="${id}" value="1" onchange="calcularTotalMMSE()"> Correcto
+            </label>
+        </td>
+    </tr>`;
+}
+
+function marcarNingunaAccion() {
+    const comandos = ["mmse_c_toma", "mmse_c_dobla", "mmse_c_piernas"];
+    comandos.forEach(id => {
+        const chk = document.getElementById(id);
+        if (chk) chk.checked = false;
+    });
+    calcularTotalMMSE();
+}
+
+function calcularTotalMMSE() {
+    let total = 0;
+    let respuestas = {};
+
+    // 1. Sumar todos los checkboxes del formulario
+    const checkboxes = [
+        "mmse_o_mes", "mmse_o_dia_mes", "mmse_o_anio", "mmse_o_dia_sem", // Orientación (4)
+        "mmse_f_arbol", "mmse_f_mesa", "mmse_f_avion",                 // Fijación (3)
+        "mmse_c_toma", "mmse_c_dobla", "mmse_c_piernas",               // Consigna (3)
+        "mmse_e_arbol", "mmse_e_mesa", "mmse_e_avion"                  // Evocación (3)
+    ];
+
+    checkboxes.forEach(id => {
+        let chk = document.getElementById(id);
+        respuestas[id] = chk && chk.checked;
+        if (chk && chk.checked) total += 1;
+    });
+
+    // 2. Sumar puntaje numérico de dígitos al revés (0 a 5)
+    let calculoInput = document.getElementById("mmse_a_puntaje");
+    let calculo = calculoInput ? parseInt(calculoInput.value) || 0 : 0;
+    if (calculo > 5) calculo = 5; else if (calculo < 0) calculo = 0;
+    if (calculoInput) calculoInput.value = calculo;
+    total += calculo;
+
+    // 3. Sumar Radio de Dibujo (0 o 1 pto)
+    let dibujoRadio = document.querySelector('input[name="mmse_dibujo"]:checked');
+    let dibujo = dibujoRadio ? parseInt(dibujoRadio.value) || 0 : 0;
+    total += dibujo;
+
+    // Renderizar Total
+    document.getElementById("total-mmse").innerText = total;
+
+    // Ajuste de rangos clínicos según el corte clásico (Normal >= 14, Alterado <= 13)
+    const elResultado = document.getElementById("resultado-mmse");
+    if (elResultado) {
+        if (total >= 14) {
+            elResultado.innerText = "- Normal";
+            elResultado.style.color = "#16a34a";
+        } else {
+            elResultado.innerText = "- Alterado (Sospecha de Deterioro Cognitivo)";
+            elResultado.style.color = "#dc2626";
+        }
+    }
+
+    // Persistencia en memoria líquida de la app
+    window.ultimoTotalMMSE = total;
+    window.cacheRespuestasMMSE = {
+        respuestas,
+        calculo,
+        dibujo,
+        txtRespuesta: document.getElementById("mmse_a_respuesta") ? document.getElementById("mmse_a_respuesta").value : "",
+        repeticiones: document.getElementById("mmse_f_repeticiones") ? document.getElementById("mmse_f_repeticiones").value : "0"
+    };
+    return total;
+}
+
+function guardarMMSEEnActuacion() {
+    const total = calcularTotalMMSE();
+    const estado = (total >= 14) ? "Normal" : "Alterado";
+    const repeticiones = document.getElementById("mmse_f_repeticiones") ? document.getElementById("mmse_f_repeticiones").value : "0";
+    const respEntrevistado = document.getElementById("mmse_a_respuesta") ? document.getElementById("mmse_a_respuesta").value : "";
+    
+    const texto = `\nProg. Salud: A. Mayor - Formulario: MMSE ABREVIADO, Resultado: ${total}/19 pts (${estado}). N° Repeticiones Fijación: ${repeticiones}. Serie Inversa: "${respEntrevistado}".`;
+    const campo = document.getElementById("reg-actuacion");
+    
+    if(campo) {
+        campo.value += texto;
+        alert("✓ Datos del MMSE Abreviado guardados con éxito en Actuación.");
+    }
+}
+
+function recuperarValoresInternosMMSE() {
+    if (window.cacheRespuestasMMSE) {
+        let cache = window.cacheRespuestasMMSE;
+        // Restaurar Checkboxes
+        for (let key in cache.respuestas) {
+            let el = document.getElementById(key);
+            if (el) el.checked = cache.respuestas[key];
+        }
+        // Restaurar Campos Especiales
+        if(document.getElementById("mmse_a_puntaje")) document.getElementById("mmse_a_puntaje").value = cache.calculo;
+        if(document.getElementById("mmse_f_repeticiones")) document.getElementById("mmse_f_repeticiones").value = cache.repeticiones;
+        if(document.getElementById("mmse_a_respuesta")) document.getElementById("mmse_a_respuesta").value = cache.txtRespuesta;
+        
+        // Restaurar Radio Dibujo
+        let radioDibujo = document.querySelector(`input[name="mmse_dibujo"][value="${cache.dibujo}"]`);
+        if (radioDibujo) radioDibujo.checked = true;
+
+        calcularTotalMMSE();
+    }
+}
+// --- 7. FUNCIONES PROPIAS DEL ÍNDICE DE BARTHEL ---
+function mostrarBarthel() {
+    const contenedor = document.getElementById("contenedor-instrumento-dinamico");
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <div style="padding:15px; border:1px solid #cbd5e1; background:#ffffff; font-family: inherit;">
+            <h6 style="margin-top:0; color:#005088; font-size:13px; border-bottom:2px solid #005088; padding-bottom:5px;">
+                ACTIVIDADES BÁSICAS DE LA VIDA DIARIA (ÍNDICE DE BARTHEL)
+            </h6>
+            
+            <table id="tabla-barthel" style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:15px;">
+                <thead>
+                    <tr style="background:#f1f5f9; color:#1e293b;">
+                        <th style="padding:6px; border:1px solid #cbd5e1; text-align:left; width: 65%;">Actividad / Descripción</th>
+                        <th style="padding:6px; border:1px solid #cbd5e1; text-align:center; width: 35%;">Selección de Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>1. Comer</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_1" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="10">Totalmente independiente.</option>
+                                <option value="5">Necesita ayuda para cortar carne, el pan, etc.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>2. Lavarse</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_2" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="5">Independiente: entra y sale solo del baño.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>3. Vestirse</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_3" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="10">Independiente: capaz de ponerse/quitarse ropa, abotonarse, atarse zapatos.</option>
+                                <option value="5">Necesita ayuda.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>4. Arreglarse</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_4" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="5">Independiente para lavarse la cara, manos, peinarse, afeitarse, maquillarse, etc.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>5. Deposiciones</strong> <span style="color:#64748b;">(Valórese la semana previa)</span></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_5" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="10">Continencia normal.</option>
+                                <option value="5">Ocasionalmente algún episodio o necesita ayuda para supositorios/lavativas.</option>
+                                <option value="0">Incontinencia.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>6. Micción</strong> <span style="color:#64748b;">(Valórese la semana previa)</span></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_6" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="10">Continencia normal, o es capaz de cuidarse de la sonda si tiene una puesta.</option>
+                                <option value="5">Un episodio diario máximo de incontinencia, o necesita ayuda para cuidar la sonda.</option>
+                                <option value="0">Incontinencia.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>7. Usar el retrete</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_7" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="10">Independiente para ir al cuarto de aseo, quitarse y ponerse la ropa.</option>
+                                <option value="5">Necesita ayuda para ir al retrete, pero se limpia solo.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>8. Trasladarse</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_8" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="15">Independiente para ir del sillón a la cama.</option>
+                                <option value="10">Mínima ayuda física o supervisión para hacerlo.</option>
+                                <option value="5">Necesita gran ayuda, pero es capaz de mantenerse sentado solo.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>9. Deambular</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_9" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="15">Independiente, camina solo 50 metros.</option>
+                                <option value="10">Necesita ayuda física o supervisión para caminar 50 metros.</option>
+                                <option value="5">Independiente en silla de ruedas sin ayuda.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>10. Escalones</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">
+                            <select id="bar_10" onchange="calcularTotalBarthel()" style="font-size:11px; width:100%; padding:2px;">
+                                <option value="10">Independiente para bajar y subir escaleras.</option>
+                                <option value="5">Necesita ayuda física o supervisión para hacerlo.</option>
+                                <option value="0">Dependiente.</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr style="background:#f8fafc;">
+                        <td style="padding:6px; border:1px solid #cbd5e1;"><strong>¿Asistió en silla de ruedas?</strong></td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">
+                            <label style="margin-right:15px; cursor:pointer;"><input type="radio" name="bar_silla" value="Sí" onchange="calcularTotalBarthel()"> Sí</label>
+                            <label style="cursor:pointer;"><input type="radio" name="bar_silla" value="No" checked onchange="calcularTotalBarthel()"> No</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-bottom:15px; padding:10px; border:1px solid #cbd5e1; background:#f8fafc; font-size:11px; line-height:1.5; border-radius:4px; color:#334155;">
+                <span style="display:block; margin-bottom:4px; font-weight:bold; color:#005088;">Criterios de Clasificación del Puntaje:</span>
+                • Si suma puntaje menor a 20 = <strong>Dependencia Total</strong><br>
+                • Si suma puntaje entre 20 y 35 = <strong>Dependencia Severa</strong><br>
+                • Si suma puntaje entre 40 y 55 = <strong>Dependencia Moderada</strong><br>
+                • Si suma puntaje mayor a 60 = <strong>Dependencia Leve</strong><br>
+                • Si suma puntaje igual a 100 = <strong>Independiente</strong>
+            </div>
+
+            <div style="margin-top:15px; padding:12px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
+                <div style="flex-grow:1;">
+                    <strong style="font-size:13px;">
+                        Puntaje Total: <span id="total-barthel">100</span> / 100 pts
+                        <span id="resultado-barthel" style="margin-left:15px; font-weight:bold; color:#16a34a;">- Independiente</span>
+                    </strong>
+                </div>
+                <div>
+                    <button class="btn-action" type="button" style="background:#22c55e; color:white; border:none; padding:6px 12px; cursor:pointer; font-weight:bold; border-radius:4px;" onclick="guardarBarthelEnActuacion()">💾 Guardar en Actuación</button>
+                </div>
+            </div>
+        </div>
+    `;
+    recuperarValoresInternosBarthel();
+}
+
+function calcularTotalBarthel() {
+    let total = 0;
+    
+    // Sumar los valores seleccionados en los 10 dropdowns
+    for (let i = 1; i <= 10; i++) {
+        let sel = document.getElementById(`bar_${i}`);
+        if (sel) total += parseInt(sel.value);
+    }
+
+    document.getElementById("total-barthel").innerText = total;
+    const elResultado = document.getElementById("resultado-barthel");
+    let clasificacion = "";
+
+    // Aplicación estricta de la escala de rangos y asignación de colores solicitados
+    if (total === 100) {
+        clasificacion = "- Independiente";
+        elResultado.style.color = "#16a34a"; // Verde
+    } else if (total >= 60) {
+        clasificacion = "- Dependencia Leve";
+        elResultado.style.color = "#2563eb"; // Azul
+    } else if (total >= 40 && total <= 55) {
+        clasificacion = "- Dependencia Moderada";
+        elResultado.style.color = "#ea580c"; // Naranjo
+    } else if (total >= 20 && total <= 35) {
+        clasificacion = "- Dependencia Severa";
+        elResultado.style.color = "#dc2626"; // Rojo
+    } else if (total < 20) {
+        clasificacion = "- Dependencia Total";
+        elResultado.style.color = "#000000"; // Negro
+    }
+
+    elResultado.innerText = clasificacion;
+
+    // Persistencia temporal en el ciclo de vida de la página
+    let sillaRadio = document.querySelector('input[name="bar_silla"]:checked');
+    window.cacheBarthel = {
+        valores: Array.from({length: 10}, (_, i) => document.getElementById(`bar_${i+1}`)?.value || "0"),
+        silla: sillaRadio ? sillaRadio.value : "No"
+    };
+
+    return total;
+}
+
+function guardarBarthelEnActuacion() {
+    const total = calcularTotalBarthel();
+    const elResultado = document.getElementById("resultado-barthel").innerText.replace("- ", "");
+    const silla = document.querySelector('input[name="bar_silla"]:checked')?.value || "No";
+    
+    const texto = `\nProg. Salud: A. Mayor - Ficha: ÍNDICE DE BARTHEL, Resultado: ${total}/100 pts (${elResultado}). Asistió en silla de ruedas: ${silla}.`;
+    const campo = document.getElementById("reg-actuacion");
+    
+    if(campo) {
+        campo.value += texto;
+        alert("✓ Datos del Índice de Barthel guardados con éxito en Actuación.");
+    }
+}
+
+function recuperarValoresInternosBarthel() {
+    if (window.cacheBarthel) {
+        // Restaurar Selects
+        window.cacheBarthel.valores.forEach((val, index) => {
+            let sel = document.getElementById(`bar_${index + 1}`);
+            if (sel) sel.value = val;
+        });
+        // Restaurar Radio Silla
+        let radioSilla = document.querySelector(`input[name="bar_silla"][value="${window.cacheBarthel.silla}"]`);
+        if (radioSilla) radioSilla.checked = true;
+
+        calcularTotalBarthel();
+    }
+}
+// --- FUNCIONES PROPIAS DEL RESUMEN EMPAM ---
+function guardarFichaMaestraEnActuacion() {
+    // El texto exacto que solicitaste
+    const texto = "\nProg. Salud: A. Mayor - Formulario: EXAMEN ANUAL DE MEDICINA PREVENTIVA ADULTO MAYOR";
+    
+    // Buscamos el cuadro de texto de "Actuación / Plan e Indicaciones"
+    const campo = document.getElementById("reg-actuacion");
+    
+    if (campo) {
+        // Añadimos el texto al final de lo que ya esté escrito
+        campo.value += texto;
+        alert("✓ Datos del Resumen EMPAM guardados con éxito en Actuación.");
+    } else {
+        alert("Error: No se encontró el campo de Actuación.");
+    }
+}
+function calcularYesavage() {
+    let total = 0;
+    
+    // 1. Selecciona automáticamente todos los <select> cuyos IDs empiecen con "yes_"
+    const selects = document.querySelectorAll('select[id^="yes_"]');
+    
+    // 2. Suma los valores seleccionados (los 'No' valen 1 en algunas, los 'Sí' valen 1 en otras, según configuramos en el Paso 1)
+    selects.forEach(sel => {
+        if (sel.value !== "") {
+            total += parseInt(sel.value);
+        }
+    });
+
+    // 3. Busca los campos de texto del resultado en la pantalla
+    const pElement = document.getElementById("puntaje-yesavage");
+    const iElement = document.getElementById("interpretacion-yesavage");
+    
+    // 4. Modifica el número de puntos totales
+    if (pElement) pElement.innerText = total;
+    
+    // 5. Evalúa el puntaje clínico y cambia los colores correspondientes
+    if (iElement) {
+        if (total <= 5) {
+            iElement.innerText = "Normal (0 - 5)";
+            iElement.style.color = "#2e7d32"; // Verde institucional
+        } else if (total <= 9) {
+            iElement.innerText = "Depresión Leve (6 - 9)";
+            iElement.style.color = "#ed6c02"; // Naranja de advertencia
+        } else {
+            iElement.innerText = "Depresión Establecida (Mayor a 10)";
+            iElement.style.color = "#d32f2f"; // Rojo crítico
+        }
+    }
+}
+// --- FUNCIÓN DINÁMICA PARA EL REGISTRO DE MEDICAMENTOS ---
+function guardarMedicamentoHistorial() {
+    var nombre = document.getElementById("med-nombre").value.trim();
+    var dosis = document.getElementById("med-dosis").value.trim();
+    var frecuencia = document.getElementById("med-frecuencia").value.trim();
+    var via = document.getElementById("med-via").value;
+    var observacion = document.getElementById("med-observacion").value.trim() || 'Sin observaciones';
+
+    // Validación básica: exige al menos el nombre del fármaco
+    if (!nombre) {
+        return alert("Debe ingresar al menos el nombre del medicamento.");
+    }
+
+    var tbody = document.getElementById("tabla-medicamentos-tbody");
+    
+    // Remueve el aviso de "No se han cargado medicamentos" si existe
+    var filaVacia = document.getElementById("fila-vacia-medicamentos");
+    if (filaVacia) {
+        filaVacia.remove();
+    }
+
+    // Crea la nueva fila con los datos recolectados
+    var tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td style="text-align:left; padding-left:8px;"><strong>💊 ${nombre.toUpperCase()}</strong></td>
+        <td>${dosis || '--'}</td>
+        <td>${frecuencia || '--'}</td>
+        <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:3px; font-weight:bold;">${via}</span></td>
+        <td style="text-align:left; padding-left:8px; color:#475569;">${observacion}</td>
+        <td>
+            <button class="btn-action btn-red" style="padding:2px 6px; font-size:9px;" onclick="eliminarMedicamentoFila(this)">❌</button>
+        </td>
+    `;
+
+    // Añade la fila a la tabla
+    tbody.appendChild(tr);
+
+    // Limpia los campos del formulario para un nuevo ingreso
+    document.getElementById("med-nombre").value = "";
+    document.getElementById("med-dosis").value = "";
+    document.getElementById("med-frecuencia").value = "";
+    document.getElementById("med-observacion").value = "";
+}
+
+// Función auxiliar para borrar un medicamento y reponer el aviso si queda vacía
+function eliminarMedicamentoFila(boton) {
+    boton.parentElement.parentElement.remove();
+    var tbody = document.getElementById("tabla-medicamentos-tbody");
+    
+    if (tbody.children.length === 0) {
+        tbody.innerHTML = `
+            <tr id="fila-vacia-medicamentos">
+                <td colspan="6" style="text-align: center; color: #888; font-style: italic; padding: 15px; background:#ffffff;">El paciente no registra medicamentos declarados para esta consulta.</td>
+            </tr>
+        `;
+    }
+}
+// Variable global única para mantener el texto del caso en memoria viva
+let textoCasoClinicoGlobal = "";
+
+function abrirSeccionCaso() {
+    // 1. Quitar la clase 'active' de todos los botones para restablecer sus estilos
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // 2. Asignar el estado activo al botón de Caso Clínico de forma precisa
+    const btnCaso = document.getElementById('btn-tab-caso');
+    if (btnCaso) btnCaso.classList.add('active');
+
+    // 3. Ocultar todas las demás vistas utilizando tu clase nativa .tab-view
+    document.querySelectorAll('.tab-view').forEach(view => {
+        view.style.display = 'none';
+    });
+
+    // 4. Mostrar nuestro contenedor y sincronizar el contenido del textarea
+    const seccionCaso = document.getElementById('seccion-caso-clinico');
+    const textareaCaso = document.getElementById('textarea-caso-clinico');
+    
+    if (seccionCaso) {
+        seccionCaso.style.display = 'block';
+    }
+    
+    if (textareaCaso) {
+        textareaCaso.value = textoCasoClinicoGlobal;
+    }
+}
+</script>
+<style>
+    .watermark-author {
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        font-size: 11px; /* Tamaño ligeramente mayor */
+        color: #000000;  /* Color negro */
+        background: rgba(255, 255, 255, 0.6);
+        padding: 6px;
+        border-radius: 4px;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        pointer-events: none;
+        z-index: 9999;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="watermark-author">
+    AUTOR: Cristopher Erices R.<br>
+    Enfermero | 19.583.104-1🩺 
+</div>
+</body>
+</html>
